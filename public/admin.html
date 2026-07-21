@@ -1,0 +1,1826 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#05080a">
+<title>MI Trade Master — Admin</title>
+<style>
+  :root{
+    --bg: #05080a; --panel: #0b1114; --panel-2: #0f171b; --line: #1c2a2f;
+    --green: #34e39a; --green-dim: #1a7a56; --red: #ff5c6a; --amber:#ffc107;
+    --silver: #cdd6d8; --silver-dim: #7c8b8f;
+    --mono: 'JetBrains Mono', 'Courier New', monospace;
+    --safe-top: env(safe-area-inset-top, 0px);
+    --safe-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body{ overscroll-behavior-y: none; }
+  body{
+    margin:0; background:
+      radial-gradient(ellipse 900px 500px at 15% -10%, rgba(52,227,154,0.08), transparent 60%),
+      radial-gradient(ellipse at top, #0d1518 0%, #05080a 60%);
+    color: var(--silver); font-family: var(--mono); min-height:100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: inherit; }
+  ::-webkit-scrollbar{ width:0; height:0; }
+  @keyframes fadeUp{ from{ opacity:0; transform: translateY(8px); } to{ opacity:1; transform:none; } }
+  @keyframes pop{ from{ opacity:0; transform: scale(.95); } to{ opacity:1; transform:none; } }
+  @keyframes tap{ 0%{ transform:scale(1); } 50%{ transform:scale(.94); } 100%{ transform:scale(1); } }
+
+  /* ================= SPLASH SCREEN ================= */
+  .splash-screen{
+    position: fixed; inset:0; z-index: 200;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    background: radial-gradient(ellipse 900px 500px at 50% 20%, rgba(52,227,154,0.1), transparent 60%),
+      radial-gradient(ellipse at top, #0d1518 0%, #05080a 60%);
+    animation: splashOut .5s ease forwards; animation-delay: 1.9s;
+  }
+  @keyframes splashOut{ to{ opacity:0; visibility:hidden; pointer-events:none; } }
+  .splash-logo{
+    width:84px; height:84px; border-radius:24px; margin-bottom:18px;
+    background: linear-gradient(145deg, #1a2226, #0a0f11);
+    border: 1px solid var(--line); display:flex; align-items:center; justify-content:center;
+    font-weight:900; font-size:34px; color: var(--green);
+    box-shadow: 0 0 40px rgba(52,227,154,0.35) inset, 0 0 50px rgba(52,227,154,0.15);
+    animation: pop .5s ease;
+  }
+  .splash-title{ color:#fff; font-size:22px; margin:0; font-family: var(--mono); animation: fadeUp .5s ease .1s both; }
+  .splash-title span{ color: var(--green); }
+  .splash-tag{ color: var(--silver-dim); font-size:11px; letter-spacing:2px; text-transform:uppercase; margin: 6px 0 30px; animation: fadeUp .5s ease .2s both; }
+  .splash-candles{ display:flex; align-items:flex-end; gap:6px; height:60px; margin-bottom: 34px; }
+  .splash-candles .c{ width:6px; border-radius:3px; background: var(--green); opacity:0.85; animation: candleGrow 1.1s ease-in-out infinite; box-shadow: 0 0 10px rgba(52,227,154,0.4); }
+  .splash-candles .c.red{ background: var(--red); box-shadow: 0 0 10px rgba(255,92,106,0.4); }
+  .splash-candles .c:nth-child(1){ animation-delay: 0s; }
+  .splash-candles .c:nth-child(2){ animation-delay: .1s; }
+  .splash-candles .c:nth-child(3){ animation-delay: .2s; }
+  .splash-candles .c:nth-child(4){ animation-delay: .3s; }
+  .splash-candles .c:nth-child(5){ animation-delay: .4s; }
+  .splash-candles .c:nth-child(6){ animation-delay: .5s; }
+  .splash-candles .c:nth-child(7){ animation-delay: .6s; }
+  @keyframes candleGrow{ 0%,100%{ height:14px; } 50%{ height:56px; } }
+  .splash-loader{ width:140px; height:3px; background:#101a1d; border-radius:3px; overflow:hidden; }
+  .splash-loader-bar{ width:40%; height:100%; background: linear-gradient(90deg, var(--green-dim), var(--green)); border-radius:3px; animation: loaderSlide 1s ease-in-out infinite; }
+  @keyframes loaderSlide{ 0%{ transform: translateX(-100%); } 100%{ transform: translateX(350%); } }
+
+  /* ================= LOGIN SCREEN (full mobile screen) ================= */
+  .login-screen{
+    min-height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center;
+    padding: 24px; padding-top: calc(24px + var(--safe-top));
+  }
+  .login-card{
+    width:100%; max-width: 380px; text-align:center; padding: 32px 26px;
+    background: linear-gradient(180deg, var(--panel), var(--panel-2));
+    border: 1px solid var(--line); border-radius: 24px; animation: fadeUp .4s ease;
+  }
+  .logo-m{
+    width:64px; height:64px; border-radius:18px; margin: 0 auto 18px;
+    background: linear-gradient(145deg, #1a2226, #0a0f11);
+    border: 1px solid var(--line); display:flex; align-items:center; justify-content:center;
+    font-weight:900; font-size:26px; color: var(--green);
+    box-shadow: 0 0 26px rgba(52,227,154,0.3) inset, 0 0 34px rgba(52,227,154,0.1);
+  }
+  .login-card h1{ color:#fff; font-size:21px; margin: 0 0 4px; }
+  .login-card h1 span{ color: var(--green); }
+  .login-card p{ color:var(--silver-dim); font-size:12px; margin: 0 0 26px; }
+
+  .field{ text-align:left; margin-bottom: 14px; }
+  label{ display:block; font-size:11px; color:var(--silver-dim); margin: 0 0 6px; letter-spacing:0.5px; }
+  input, textarea, select{
+    width:100%; background:#070b0d; border:1px solid var(--line); color:#fff;
+    padding:14px 14px; border-radius:12px; font-family: var(--mono); font-size:15px;
+    outline:none; transition: border-color .15s;
+    -webkit-appearance: none; appearance: none;
+  }
+  textarea{ font-size:13px; }
+  select{
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%237c8b8f' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 14px center;
+  }
+  input:focus, textarea:focus, select:focus{ border-color: var(--green-dim); box-shadow: 0 0 0 3px rgba(52,227,154,0.08); }
+  input::placeholder, textarea::placeholder{ color:#3a4548; }
+
+  button{
+    background: linear-gradient(135deg, var(--green), #1fae7a);
+    color:#04120b; border:none; padding:14px 18px; border-radius:14px;
+    font-family: var(--mono); font-weight:700; font-size:13px; letter-spacing:0.3px;
+    cursor:pointer; transition: transform .1s ease, filter .15s ease;
+    box-shadow: 0 4px 14px rgba(52,227,154,0.2);
+  }
+  button:active{ animation: tap .18s ease; }
+  button.secondary{ background: transparent; color: var(--silver); border: 1px solid var(--line); box-shadow:none; }
+  button.danger{ background: rgba(255,92,106,0.14); color: var(--red); box-shadow:none; }
+  button.small{ padding: 9px 12px; font-size: 11px; border-radius:10px; }
+  button.block{ width:100%; }
+  button:disabled{ opacity: 0.5; }
+  #loginError{ color:#ff5c6a; margin-top:14px; font-size:11px; min-height:14px; }
+  .login-hint{ margin-top:22px; font-size:10px; color:#3a4548; line-height:1.5; }
+
+  /* ================= APP SHELL ================= */
+  .app-shell{ display:none; min-height:100vh; padding-bottom: calc(74px + var(--safe-bottom)); }
+
+  .topbar{
+    display:flex; align-items:center; gap:12px; padding: 14px 18px;
+    padding-top: calc(14px + var(--safe-top));
+    position: sticky; top:0; z-index: 20;
+    background: rgba(5,8,10,0.88); backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--line);
+  }
+  .topbar .logo-m{ width:34px; height:34px; font-size:14px; margin:0; border-radius:10px; }
+  .topbar .title{ flex:1; }
+  .topbar .title h1{ font-size:14px; margin:0; color:#fff; font-weight:700; }
+  .topbar .title small{ font-size:10px; color: var(--silver-dim); }
+  .avatar-btn{
+    width:32px; height:32px; border-radius:50%; background:#0a1114; border:1px solid var(--line);
+    display:flex; align-items:center; justify-content:center; font-size:13px; color: var(--silver-dim);
+    padding:0; box-shadow:none;
+  }
+
+  main{ padding: 16px; max-width: 720px; margin: 0 auto; }
+  .page{ display:none; animation: fadeUp .3s ease; }
+  .page.active{ display:block; }
+
+  .section-title{ font-size:11px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--silver-dim); margin: 22px 4px 10px; }
+  .section-title:first-child{ margin-top:4px; }
+  .section-title::before{ content:"// "; color: var(--green-dim); }
+
+  .card{
+    background: linear-gradient(180deg, var(--panel), var(--panel-2));
+    border: 1px solid var(--line); border-radius: 18px; padding: 16px; margin-bottom: 12px;
+  }
+  .card h2{ font-size:11px; text-transform: uppercase; letter-spacing: 1.2px; color: var(--silver-dim); margin: 0 0 14px; }
+  .card h2::before{ content:"// "; color: var(--green-dim); }
+
+  /* Stat cards — horizontal scroll on mobile */
+  .stat-scroll{
+    display:flex; gap: 10px; overflow-x:auto; padding: 2px 2px 10px; margin: 0 -2px 6px;
+    scroll-snap-type: x mandatory;
+  }
+  .stat-card{
+    scroll-snap-align:start; flex: 0 0 130px;
+    background: linear-gradient(180deg, var(--panel), var(--panel-2));
+    border:1px solid var(--line); border-radius:16px; padding:14px; animation: pop .3s ease;
+  }
+  .stat-card .value{ font-size: 22px; font-weight: 800; color: var(--green); text-shadow: 0 0 20px rgba(52,227,154,0.25); }
+  .stat-card .label{ font-size: 10px; color: var(--silver-dim); margin-top:4px; line-height:1.3; }
+
+  /* Mobile "row card" replaces table rows */
+  .row-card{
+    display:flex; align-items:center; gap:12px; padding: 12px;
+    background:#0a1114; border:1px solid var(--line); border-radius:14px; margin-bottom:8px;
+    transition: transform .1s ease;
+  }
+  .row-card:active{ transform: scale(.98); }
+  .row-card .thumb, .row-card .thumb-fallback{ flex-shrink:0; }
+  .row-card .info{ flex:1; min-width:0; }
+  .row-card .info .name{ color:#fff; font-size:13px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .row-card .info .meta{ color:var(--silver-dim); font-size:10.5px; margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .row-card .side{ flex-shrink:0; display:flex; flex-direction:column; align-items:flex-end; gap:6px; }
+
+  .badge{ padding:4px 10px; border-radius:20px; font-size:9.5px; font-weight:700; display:inline-block; letter-spacing:0.4px; white-space:nowrap; }
+  .badge.active{ background: rgba(52,227,154,0.12); color: var(--green); box-shadow: 0 0 0 1px rgba(52,227,154,0.2) inset; }
+  .badge.pending{ background: rgba(255,193,7,0.12); color: var(--amber); box-shadow: 0 0 0 1px rgba(255,193,7,0.2) inset; }
+  .badge.expired, .badge.rejected{ background: rgba(255,92,106,0.12); color: var(--red); box-shadow: 0 0 0 1px rgba(255,92,106,0.2) inset; }
+
+  .thumb{ width: 46px; height: 46px; border-radius: 12px; object-fit: cover; background: #070b0d; border:1px solid var(--line); }
+  .thumb-fallback{
+    width:46px; height:46px; border-radius:12px; background:#070b0d; border:1px solid var(--line);
+    display:flex; align-items:center; justify-content:center; color: var(--silver-dim); font-size:18px;
+  }
+  .row-actions{ display:flex; gap:6px; flex-wrap: wrap; justify-content:flex-end; }
+  .empty{ color: var(--silver-dim); font-size:12px; padding: 34px 0; text-align:center; }
+  .empty-icon{ font-size:28px; margin-bottom:8px; opacity:.5; }
+
+  /* Segmented pill filter (mobile-native pattern) */
+  .segmented{ display:flex; gap:6px; overflow-x:auto; padding: 2px 2px 4px; margin-bottom:14px; }
+  .segmented button{
+    background:#0a1114; color:var(--silver-dim); border:1px solid var(--line); box-shadow:none;
+    padding:8px 14px; font-size:11px; border-radius:20px; white-space:nowrap; font-weight:600;
+  }
+  .segmented button.active{ background: rgba(52,227,154,0.12); color: var(--green); border-color: var(--green-dim); }
+
+  /* ================= BOTTOM NAV (app style) ================= */
+  nav.bottom-nav{
+    position: fixed; left:0; right:0; bottom:0; z-index: 30;
+    display:flex; justify-content: space-around; align-items:center;
+    background: rgba(8,12,14,0.92); backdrop-filter: blur(16px);
+    border-top: 1px solid var(--line);
+    padding: 8px 4px calc(8px + var(--safe-bottom));
+  }
+  nav.bottom-nav button{
+    background:none; box-shadow:none; color: var(--silver-dim); border:none;
+    display:flex; flex-direction:column; align-items:center; gap:3px;
+    padding: 6px 10px; border-radius:12px; flex:1; max-width:80px;
+    font-size:9.5px; font-weight:600; letter-spacing:0.2px;
+  }
+  nav.bottom-nav button .ic{ font-size:19px; line-height:1; }
+  nav.bottom-nav button.active{ color: var(--green); }
+  nav.bottom-nav button.active .ic{ filter: drop-shadow(0 0 8px rgba(52,227,154,0.5)); }
+
+  /* Floating action button */
+  .fab{
+    position: fixed; right:18px; bottom: calc(88px + var(--safe-bottom)); z-index: 25;
+    width:54px; height:54px; border-radius:50%; padding:0;
+    display:flex; align-items:center; justify-content:center; font-size:22px;
+    box-shadow: 0 6px 20px rgba(52,227,154,0.35);
+  }
+
+  /* ================= MODALS / SHEETS (bottom sheet style) ================= */
+  .modal-backdrop{
+    display:none; position: fixed; inset:0; background: rgba(0,0,0,0.65); z-index: 50;
+    align-items:flex-end; justify-content:center; backdrop-filter: blur(3px);
+  }
+  .modal-backdrop.center{ align-items:center; padding:20px; }
+  .sheet{
+    background: var(--panel-2); border: 1px solid var(--line); border-radius: 22px 22px 0 0;
+    padding: 10px 20px calc(24px + var(--safe-bottom)); max-width: 480px; width:100%;
+    max-height: 88vh; overflow-y:auto; animation: slideUp .25s ease;
+  }
+  .modal-backdrop.center .sheet{ border-radius:20px; padding:22px; animation: pop .2s ease; max-height:85vh; }
+  @keyframes slideUp{ from{ transform: translateY(100%);} to{ transform: translateY(0);} }
+  .sheet-handle{ width:36px; height:4px; background: var(--line); border-radius:4px; margin: 6px auto 16px; }
+  .sheet h3{ margin:0 0 16px; color:#fff; font-size: 15px; }
+
+  .toast{
+    position: fixed; bottom: calc(90px + var(--safe-bottom)); left: 50%; transform: translateX(-50%);
+    background: var(--panel-2); border:1px solid var(--green-dim); color: var(--green);
+    padding: 12px 20px; border-radius: 30px; font-size:12px; z-index: 100; display:none;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.4), 0 0 0 1px rgba(52,227,154,0.1);
+    max-width: 90vw; text-align:center;
+  }
+  .qr-preview{ width: 140px; height:140px; object-fit:contain; background:#070b0d; border-radius:14px; border:1px solid var(--line); margin-top:10px; }
+  .img-zoom-backdrop{
+    display:none; position: fixed; inset:0; background: rgba(0,0,0,0.9); z-index: 60;
+    align-items:center; justify-content:center; padding: 24px; cursor: zoom-out;
+  }
+  .img-zoom-backdrop img{ max-width:92vw; max-height:88vh; border-radius:14px; border:1px solid var(--line); }
+
+  .lesson-item, .course-item{
+    display:flex; justify-content:space-between; align-items:center; padding:12px;
+    background:#0a1114; border:1px solid var(--line); border-radius:14px; margin-bottom:8px;
+    transition: border-color .15s ease;
+  }
+  .lesson-item:hover, .course-item:hover{ border-color: var(--green-dim); }
+  .lesson-item .t{ color:#fff; font-size:12.5px; }
+  .lesson-item .lvl{ color:var(--silver-dim); font-size:10px; margin-top:2px; }
+
+  #studentModalBody p{
+    display:flex; justify-content:space-between; gap:12px; margin: 0; padding: 10px 2px;
+    border-bottom: 1px solid #101a1d; font-size:12.5px;
+  }
+  #studentModalBody p:last-child{ border-bottom:none; }
+  #studentModalBody p b{ color: var(--silver-dim); font-weight:600; flex-shrink:0; }
+  #studentModalBody img.thumb{ display:block; margin: 4px auto 14px; }
+  #studentModalBody p:has(img){ display:block; text-align:center; border-bottom:none; }
+  .sheet-hidden{ display:none !important; }
+  .sheet-visible{ display:block !important; }
+
+  .card{ position: relative; overflow: hidden; }
+  .card::before{
+    content:""; position:absolute; top:0; left:0; right:0; height:1px;
+    background: linear-gradient(90deg, transparent, rgba(52,227,154,0.4), transparent);
+  }
+</style>
+</head>
+<body>
+
+<!-- ============ SPLASH SCREEN ============ -->
+<div class="splash-screen" id="splashScreen">
+  <div class="splash-logo">M</div>
+  <h1 class="splash-title">MI Trade <span>Master</span></h1>
+  <p class="splash-tag">Admin Console</p>
+  <div class="splash-candles" id="splashCandles"></div>
+  <div class="splash-loader"><div class="splash-loader-bar"></div></div>
+</div>
+
+<!-- ============ LOGIN SCREEN ============ -->
+<div class="login-screen" id="loginGate">
+  <div class="login-card">
+    <div class="logo-m">M</div>
+    <h1>MI Trade <span>Master</span></h1>
+    <p>Admin Console — sign in to continue</p>
+    <div class="field">
+      <label>Admin Email</label>
+      <input type="email" id="adminEmail" placeholder="admin@example.com" inputmode="email" />
+    </div>
+    <div class="field">
+      <label>Password</label>
+      <input type="password" id="adminPassword" placeholder="••••••••" />
+    </div>
+    <button class="block" onclick="adminSignIn()">Sign In</button>
+    <p id="loginError"></p>
+    <p class="login-hint">
+      This account must exist in Firebase Authentication (Email/Password) and
+      be listed as an admin in Firestore.
+    </p>
+  </div>
+</div>
+
+<!-- ============ APP SHELL ============ -->
+<div class="app-shell" id="appShell">
+
+  <div class="topbar">
+    <div class="logo-m">M</div>
+    <div class="title">
+      <h1 id="pageTitle">Dashboard</h1>
+      <small id="adminEmailLabel"></small>
+    </div>
+    <button class="avatar-btn" onclick="goToPage('config')" style="margin-right:6px;">⚙️</button>
+    <button class="avatar-btn" onclick="adminSignOut()">⎋</button>
+  </div>
+
+  <main>
+    <!-- ============ DASHBOARD ============ -->
+    <section class="page active" id="page-dashboard">
+      <div class="stat-scroll">
+        <div class="stat-card"><div class="value" id="statTotalStudents">—</div><div class="label">Total Students</div></div>
+        <div class="stat-card"><div class="value" id="statActiveStudents">—</div><div class="label">Active Subs</div></div>
+        <div class="stat-card"><div class="value" id="statPendingPayments">—</div><div class="label">Pending Pay</div></div>
+        <div class="stat-card"><div class="value" id="statRevenue">—</div><div class="label">Revenue (PKR)</div></div>
+      </div>
+
+      <div class="section-title">Recently Active</div>
+      <div id="recentActivityBody"><div class="empty"><div class="empty-icon">⏳</div>Loading…</div></div>
+    </section>
+
+    <!-- ============ CHART DEMO ============ -->
+    <section class="page" id="page-chart">
+      <div class="segmented" id="chartFilter">
+        <button data-tf="1m" class="active">1m</button>
+        <button data-tf="5m">5m</button>
+        <button data-tf="15m">15m</button>
+        <button data-tf="1h">1h</button>
+        <button data-tf="1d">1D</button>
+      </div>
+      <div class="card" style="padding:12px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; padding:0 4px;">
+          <div>
+            <div style="color:#fff; font-size:15px; font-weight:700;">XAU/USD <span id="chartPricePulse" style="color:var(--green); font-size:11px;">●</span></div>
+            <div id="chartPrice" style="font-size:20px; font-weight:800; color:var(--green);">—</div>
+          </div>
+          <div style="text-align:right;">
+            <div id="chartChange" style="font-size:12px; font-weight:700;">—</div>
+            <div style="font-size:10px; color:var(--silver-dim);">Demo Data</div>
+          </div>
+        </div>
+        <canvas id="candleCanvas" style="width:100%; height:280px; display:block; border-radius:12px; background:#070b0d;"></canvas>
+      </div>
+
+      <div class="section-title">Live Ticker (Demo)</div>
+      <div class="card">
+        <div id="tickerList"></div>
+      </div>
+    </section>
+
+    <!-- ============ STUDENTS ============ -->
+    <section class="page" id="page-students">
+      <div class="segmented" id="studentFilter">
+        <button data-f="all" class="active">All</button>
+        <button data-f="active">Active</button>
+        <button data-f="pending">Pending</button>
+        <button data-f="expired">Expired</button>
+      </div>
+      <div id="studentsBody"><div class="empty"><div class="empty-icon">⏳</div>Loading…</div></div>
+    </section>
+
+    <!-- ============ PAYMENTS ============ -->
+    <section class="page" id="page-payments">
+      <div class="segmented" id="paymentFilter">
+        <button data-f="all" class="active">All</button>
+        <button data-f="pending">Pending</button>
+        <button data-f="approved">Approved</button>
+        <button data-f="rejected">Rejected</button>
+      </div>
+      <div id="paymentsBody"><div class="empty"><div class="empty-icon">⏳</div>Loading…</div></div>
+    </section>
+
+    <!-- ============ COURSES ============ -->
+    <section class="page" id="page-courses">
+      <div class="section-title">Your Courses</div>
+      <div id="coursesList"></div>
+
+      <div class="card" id="lessonsPanel" style="display:none; margin-top:16px;">
+        <h2>Lessons — <span id="selectedCourseTitle"></span></h2>
+        <div id="lessonsList" style="margin-bottom:12px;"></div>
+        <button class="block secondary" onclick="openLessonSheet()">+ Add Lesson</button>
+      </div>
+
+      <div class="card" id="quizPanel" style="display:none; margin-top:16px;">
+        <h2>Course Quiz — <span id="quizCourseTitle"></span></h2>
+        <p style="font-size:11.5px; color:var(--silver-dim); margin:0 0 12px;" id="quizStatusText">
+          No quiz generated yet for this course.
+        </p>
+        <div id="quizPreview" style="display:none; margin-bottom:12px;"></div>
+        <button class="block" id="generateQuizBtn" onclick="generateQuizForCourse()">Generate Quiz (small request per lesson)</button>
+        <button class="block secondary" id="cancelQuizGenBtn" style="display:none; margin-top:8px;" onclick="cancelQuizGeneration()">Pause After Current Lesson</button>
+      </div>
+    </section>
+
+    <!-- ============ SETTINGS / CONFIG ============ -->
+    <section class="page" id="page-config">
+      <div class="section-title">JazzCash Payment</div>
+      <div class="card">
+        <p style="font-size:11.5px; color:var(--silver-dim); margin:0 0 12px;">Students see this QR when they pick JazzCash on the payment screen.</p>
+        <input type="file" id="jazzCashFileInput" accept="image/*" />
+        <div><img id="jazzCashPreview" class="qr-preview" style="display:none;" onclick="openImgZoom(this.src)" /></div>
+        <button class="block" style="margin-top:14px;" onclick="uploadQrCode('jazzcash')">Upload & Save JazzCash QR</button>
+        <div class="field" style="margin-top:12px;">
+          <label>JazzCash Number (shown under QR)</label>
+          <input id="configJazzCashNumber" placeholder="03062015326" inputmode="tel" />
+        </div>
+      </div>
+
+      <div class="section-title">EasyPaisa Payment</div>
+      <div class="card">
+        <p style="font-size:11.5px; color:var(--silver-dim); margin:0 0 12px;">Students see this QR when they pick EasyPaisa on the payment screen.</p>
+        <input type="file" id="easyPaisaFileInput" accept="image/*" />
+        <div><img id="easyPaisaPreview" class="qr-preview" style="display:none;" onclick="openImgZoom(this.src)" /></div>
+        <button class="block" style="margin-top:14px;" onclick="uploadQrCode('easypaisa')">Upload & Save EasyPaisa QR</button>
+        <div class="field" style="margin-top:12px;">
+          <label>EasyPaisa Number (shown under QR)</label>
+          <input id="configEasyPaisaNumber" placeholder="03001234567" inputmode="tel" />
+        </div>
+      </div>
+
+      <div class="section-title">App Settings</div>
+      <div class="card">
+        <div class="field">
+          <label>Monthly Subscription Price (PKR)</label>
+          <input id="configPrice" type="number" inputmode="numeric" value="500" />
+        </div>
+        <div class="field">
+          <label>WhatsApp Number</label>
+          <input id="configWhatsapp" placeholder="923062015326" inputmode="tel" />
+        </div>
+        <div class="field">
+          <label>Groq API Key (support chat, ships inside the app)</label>
+          <input id="configGroqKey" placeholder="gsk_..." type="password" />
+        </div>
+        <button class="block" onclick="saveConfig()">Save Settings</button>
+      </div>
+
+      <div class="section-title">AI Quiz Generator</div>
+      <div class="card">
+        <p style="font-size:11.5px; color:var(--silver-dim); margin:0 0 12px;">
+          Used only here in the admin panel to generate course quizzes — this key never ships inside the student app,
+          so keep it separate from the chat key above for better security.
+        </p>
+        <div class="field">
+          <label>Quiz Generator Groq API Key</label>
+          <input id="quizGroqKey" placeholder="gsk_..." type="password" />
+        </div>
+        <button class="block secondary" onclick="saveQuizGroqKey()">Save Quiz Key</button>
+      </div>
+
+      <div class="section-title">Announcements</div>
+      <div class="card">
+        <div id="announcementsList" style="margin-bottom:12px;"></div>
+        <button class="block secondary" onclick="openAnnouncementSheet()">+ New Announcement</button>
+      </div>
+
+      <div class="section-title">App Update</div>
+      <div class="card">
+        <p style="font-size:11px; color:var(--silver-dim); margin:0 0 14px;">
+          When a new APK is published, fill this in so installed apps detect and prompt for the update.
+        </p>
+        <div class="field">
+          <label>Latest Version Code (integer, must increase)</label>
+          <input id="updateVersionCode" type="number" inputmode="numeric" placeholder="5" />
+        </div>
+        <div class="field">
+          <label>Latest Version Name</label>
+          <input id="updateVersionName" placeholder="4.1.0" />
+        </div>
+        <div class="field">
+          <label>APK Download URL</label>
+          <input id="updateApkUrl" placeholder="https://github.com/you/repo/releases/download/v4.1.0/app.apk" />
+        </div>
+        <div class="field">
+          <label>Release Notes</label>
+          <textarea id="updateNotes" rows="3" placeholder="Bug fixes and new features."></textarea>
+        </div>
+        <label style="display:flex; align-items:center; gap:8px; font-size:12px; color:var(--silver); margin-bottom:14px;">
+          <input type="checkbox" id="updateForce" style="width:auto;" />
+          Force update (blocks app usage until updated)
+        </label>
+        <button class="block" onclick="saveUpdateConfig()">Publish Update Info</button>
+      </div>
+
+      <div class="section-title">Landing Page (download.html)</div>
+      <div class="card">
+        <p style="font-size:11.5px; color:var(--silver-dim); margin:0 0 14px;">
+          Controls the public download page students share/visit. Screenshots, logo, and APK link all live here —
+          the page reads them live from Firestore, so changes show up immediately without editing any HTML.
+        </p>
+        <div class="field">
+          <label>App Name (shown as page title + brand)</label>
+          <input id="landingBrandName" placeholder="MI Trade Master" />
+        </div>
+        <div class="field">
+          <label>Short Tagline (SEO description + hero subtitle)</label>
+          <textarea id="landingTagline" rows="2" placeholder="Structured courses, an AI chart analyzer, risk-free practice mode, and a live support assistant — everything you need to actually understand trading."></textarea>
+        </div>
+        <div class="field">
+          <label>SEO Keywords (comma separated)</label>
+          <input id="landingKeywords" placeholder="trading app, forex education, candlestick patterns, urdu trading course" />
+        </div>
+        <div class="field">
+          <label>APK Download Link</label>
+          <input id="landingApkUrl" placeholder="https://github.com/you/repo/releases/download/v4.1.0/app.apk" />
+        </div>
+        <div class="field">
+          <label>File Size Label (shown under the download button)</label>
+          <input id="landingFileSize" placeholder="Free • 45 MB • APK direct download" />
+        </div>
+
+        <div class="section-title" style="margin-top:20px;">App Logo</div>
+        <input type="file" id="landingLogoFileInput" accept="image/*" />
+        <div><img id="landingLogoPreview" class="qr-preview" style="display:none; max-width:120px;" onclick="openImgZoom(this.src)" /></div>
+        <button class="block secondary" style="margin-top:10px;" onclick="uploadLandingImage('logo')">Upload Logo</button>
+
+        <div class="section-title" style="margin-top:20px;">Screenshots (shown in the phone mockup strip)</div>
+        <p style="font-size:11px; color:var(--silver-dim); margin:0 0 10px;">Upload in the order you want them displayed. You can add as many as you like.</p>
+        <input type="file" id="landingScreenshotInput" accept="image/*" />
+        <button class="block secondary" style="margin-top:10px;" onclick="uploadLandingImage('screenshot')">Add Screenshot</button>
+        <div id="landingScreenshotsList" style="margin-top:14px; display:flex; gap:10px; flex-wrap:wrap;"></div>
+
+        <button class="block" style="margin-top:20px;" onclick="saveLandingConfig()">Save Landing Page Settings</button>
+        <div style="margin-top:14px; font-size:11.5px; color:var(--silver-dim);">
+          Public page: <code id="landingPageUrlHint">download.html</code> — host it alongside this admin panel or anywhere else; it reads its content from Firestore automatically.
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- FAB — context-aware add button -->
+  <button class="fab" id="fabBtn" style="display:none;">+</button>
+
+  <!-- ============ BOTTOM NAV ============ -->
+  <nav class="bottom-nav" id="bottomNav">
+    <button data-page="dashboard" class="active"><span class="ic">🏠</span>Home</button>
+    <button data-page="students"><span class="ic">👥</span>Students</button>
+    <button data-page="chart"><span class="ic">📈</span>Chart</button>
+    <button data-page="payments"><span class="ic">💳</span>Payments</button>
+    <button data-page="courses"><span class="ic">📚</span>Courses</button>
+  </nav>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- Student detail sheet -->
+<div class="modal-backdrop" id="studentModalBackdrop">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <h3 id="studentSheetTitle">Student Details</h3>
+    <div id="studentModalBody"></div>
+    <div id="studentEditFields" class="sheet-hidden">
+      <div class="field"><label>Name</label><input id="editStudentName" /></div>
+      <div class="field"><label>Father's Name</label><input id="editFatherName" /></div>
+      <div class="field"><label>ID Card Number</label><input id="editIdCardNumber" /></div>
+      <div class="field"><label>Father's Address</label><input id="editFatherAddress" /></div>
+      <div class="field"><label>Qualification</label><input id="editQualification" /></div>
+      <div class="field"><label>Phone</label><input id="editPhone" inputmode="tel" /></div>
+      <div class="field">
+        <label>Subscription Status</label>
+        <select id="editSubStatus">
+          <option value="pending">Pending</option>
+          <option value="active">Active</option>
+          <option value="expired">Expired</option>
+        </select>
+      </div>
+    </div>
+    <div style="display:flex; gap:8px; margin-top:16px;">
+      <button class="secondary" style="flex:1;" onclick="closeStudentModal()">Close</button>
+      <button style="flex:1;" id="studentEditToggleBtn" onclick="toggleStudentEdit()">Edit Profile</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add course sheet -->
+<div class="modal-backdrop" id="courseModalBackdrop">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <h3>Add Course</h3>
+    <div class="field"><label>Title (English)</label><input id="courseTitle" placeholder="Candlestick Basics" /></div>
+    <div class="field"><label>Title (Urdu)</label><input id="courseTitleUr" placeholder="کینڈل سٹک بنیادی باتیں" /></div>
+    <div class="field"><label>Description</label><input id="courseDesc" placeholder="Learn to read candles, wicks, and bodies" /></div>
+    <div class="field">
+      <label>Level</label>
+      <select id="courseLevel"><option value="beginner">Beginner</option><option value="intermediate">Intermediate</option><option value="advanced">Advanced</option></select>
+    </div>
+    <div class="field"><label>Order (lower shows first)</label><input id="courseOrder" type="number" inputmode="numeric" value="1" /></div>
+    <div class="field">
+      <label>Icon</label>
+      <select id="courseIcon">
+        <option value="School">School</option><option value="CandlestickChart">CandlestickChart</option>
+        <option value="Timeline">Timeline</option><option value="ShowChart">ShowChart</option>
+        <option value="AutoGraph">AutoGraph</option><option value="Security">Security</option>
+        <option value="Psychology">Psychology</option><option value="Rule">Rule</option>
+      </select>
+    </div>
+    <div style="display:flex; gap:8px; margin-top:8px;">
+      <button class="secondary" style="flex:1;" onclick="closeCourseSheet()">Cancel</button>
+      <button style="flex:1;" onclick="createCourse()">Add Course</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add lesson sheet -->
+<div class="modal-backdrop" id="lessonModalBackdrop">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <h3 id="lessonSheetTitle">Add Lesson</h3>
+    <div class="field"><label>Title (English)</label><input id="lessonTitle" placeholder="What is a candlestick?" /></div>
+    <div class="field"><label>Title (Urdu)</label><input id="lessonTitleUr" placeholder="کینڈل سٹک کیا ہے؟" /></div>
+    <div class="field"><label>Content (English)</label><textarea id="lessonContent" rows="3" placeholder="Lesson text..."></textarea></div>
+    <div class="field"><label>Content (Urdu)</label><textarea id="lessonContentUr" rows="3" placeholder="سبق کا متن..."></textarea></div>
+    <div class="field"><label>Video Link (MP4) — English narration</label><input id="lessonVideoEn" placeholder="https://yourcdn.com/lesson1-en.mp4" /></div>
+    <div class="field"><label>Video Link (MP4) — Urdu narration</label><input id="lessonVideoUr" placeholder="https://yourcdn.com/lesson1-ur.mp4" /></div>
+    <div class="field"><label>Video Thumbnail (image URL)</label><input id="lessonVideoThumb" placeholder="https://i.ibb.co/..." /></div>
+    <div class="field"><label>PDF Book Link (optional)</label><input id="lessonPdf" placeholder="https://drive.google.com/..." /></div>
+    <div class="field"><label>Order</label><input id="lessonOrder" type="number" inputmode="numeric" value="1" /></div>
+    <div style="display:flex; gap:8px; margin-top:8px;">
+      <button class="secondary" style="flex:1;" onclick="closeLessonSheet()">Cancel</button>
+      <button style="flex:1;" id="lessonSaveBtn" onclick="saveLesson()">Add Lesson</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add/Edit announcement sheet -->
+<div class="modal-backdrop" id="announcementModalBackdrop">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <h3 id="announcementSheetTitle">New Announcement</h3>
+    <div class="field"><label>Title (English)</label><input id="annTitle" placeholder="New course added!" /></div>
+    <div class="field"><label>Title (Urdu)</label><input id="annTitleUr" placeholder="نیا کورس شامل کر دیا گیا!" /></div>
+    <div class="field"><label>Message (English)</label><textarea id="annMessage" rows="3" placeholder="Check out the new Risk Management course."></textarea></div>
+    <div class="field"><label>Message (Urdu)</label><textarea id="annMessageUr" rows="3" placeholder="نیا رسک مینجمنٹ کورس دیکھیں۔"></textarea></div>
+    <div class="field">
+      <label>Icon</label>
+      <select id="annIcon">
+        <option value="Campaign">Campaign</option>
+        <option value="NewReleases">New Release</option>
+        <option value="Star">Star</option>
+        <option value="Warning">Warning</option>
+      </select>
+    </div>
+    <div style="display:flex; gap:8px; margin-top:8px;">
+      <button class="secondary" style="flex:1;" onclick="closeAnnouncementSheet()">Cancel</button>
+      <button style="flex:1;" id="announcementSaveBtn" onclick="saveAnnouncement()">Post Announcement</button>
+    </div>
+  </div>
+</div>
+
+<!-- Image zoom viewer -->
+<div class="img-zoom-backdrop" id="imgZoomBackdrop" onclick="closeImgZoom()">
+  <img id="imgZoomTarget" src="" />
+</div>
+
+<!-- ============ FIREBASE ============ -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script>
+// ======================================================================
+// FIREBASE CONFIG
+// ======================================================================
+const firebaseConfig = {
+  apiKey: "AIzaSyCldWSASWc8cYKugKsbUR6AyEeUcpopeRE",
+  authDomain: "mitrademaster.firebaseapp.com",
+  projectId: "mitrademaster",
+  storageBucket: "mitrademaster.firebasestorage.app",
+  messagingSenderId: "206224301348",
+  appId: "1:206224301348:web:305c5c73e0cb5fa117e7b1",
+  measurementId: "G-LHSQXCH6BK"
+};
+
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+
+const IMGBB_API_KEY = "6bdb23b28e7581721b28e46ce313308b";
+
+// ---------------------------------------------------------------------
+// Splash screen
+// ---------------------------------------------------------------------
+(function initSplash() {
+  const container = document.getElementById('splashCandles');
+  const colors = ['', 'red', '', '', 'red', '', 'red'];
+  container.innerHTML = colors.map(c => `<div class="c ${c}"></div>`).join('');
+  setTimeout(() => {
+    const splash = document.getElementById('splashScreen');
+    if (splash) splash.remove();
+  }, 2600);
+})();
+
+// ---------------------------------------------------------------------
+// Auth
+// ---------------------------------------------------------------------
+
+function adminSignIn() {
+  const email = document.getElementById('adminEmail').value;
+  const password = document.getElementById('adminPassword').value;
+  document.getElementById('loginError').textContent = '';
+  auth.signInWithEmailAndPassword(email, password)
+    .catch(err => { document.getElementById('loginError').textContent = err.message; });
+}
+
+function adminSignOut() { auth.signOut(); }
+
+auth.onAuthStateChanged(user => {
+  if (user) {
+    document.getElementById('loginGate').style.display = 'none';
+    document.getElementById('appShell').style.display = 'block';
+    document.getElementById('adminEmailLabel').textContent = user.email;
+    loadDashboard();
+    loadStudents();
+    loadPayments();
+    loadCourses();
+    loadConfig();
+    loadQuizGroqKey();
+    loadAnnouncements();
+    loadUpdateConfig();
+    loadLandingConfig();
+  } else {
+    document.getElementById('loginGate').style.display = 'flex';
+    document.getElementById('appShell').style.display = 'none';
+  }
+});
+
+// ---------------------------------------------------------------------
+// Bottom nav / page switching
+// ---------------------------------------------------------------------
+
+const pageTitles = { dashboard: 'Dashboard', students: 'Students', chart: 'Chart Analysis', payments: 'Payments', courses: 'Courses & Lessons', config: 'Settings' };
+const fabActions = {
+  courses: () => openCourseSheet(),
+};
+
+function goToPage(page) {
+  document.querySelectorAll('#bottomNav button').forEach(b => b.classList.remove('active'));
+  const navBtn = document.querySelector(`#bottomNav button[data-page="${page}"]`);
+  if (navBtn) navBtn.classList.add('active');
+  document.querySelectorAll('main > .page').forEach(s => s.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+  document.getElementById('pageTitle').textContent = pageTitles[page];
+  const fab = document.getElementById('fabBtn');
+  if (fabActions[page]) { fab.style.display = 'flex'; fab.onclick = fabActions[page]; }
+  else { fab.style.display = 'none'; }
+  window.scrollTo(0, 0);
+  if (page === 'chart' && !chartStarted) startChartDemo();
+}
+
+document.getElementById('bottomNav').addEventListener('click', (e) => {
+  const btn = e.target.closest('button[data-page]');
+  if (!btn) return;
+  goToPage(btn.dataset.page);
+});
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.display = 'block';
+  setTimeout(() => t.style.display = 'none', 2600);
+}
+
+function openImgZoom(url) {
+  if (!url) return;
+  document.getElementById('imgZoomTarget').src = url;
+  document.getElementById('imgZoomBackdrop').style.display = 'flex';
+}
+function closeImgZoom() { document.getElementById('imgZoomBackdrop').style.display = 'none'; }
+function thumbOrFallback(url, icon) {
+  return url
+    ? `<img class="thumb" src="${url}" onclick="event.stopPropagation(); openImgZoom('${url}')" />`
+    : `<div class="thumb-fallback">${icon || '—'}</div>`;
+}
+
+// ---------------------------------------------------------------------
+// Dashboard
+// ---------------------------------------------------------------------
+
+async function loadDashboard() {
+  const studentsSnap = await db.collection('students').get();
+  const students = studentsSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+  const active = students.filter(s => s.subscriptionStatus === 'active');
+  const paymentsSnap = await db.collection('payments').where('status', '==', 'pending').get();
+
+  document.getElementById('statTotalStudents').textContent = students.length;
+  document.getElementById('statActiveStudents').textContent = active.length;
+  document.getElementById('statPendingPayments').textContent = paymentsSnap.size;
+
+  const configSnap = await db.collection('config').doc('app').get();
+  const price = configSnap.exists ? (configSnap.data().subscriptionPricePkr || 500) : 500;
+  document.getElementById('statRevenue').textContent = (active.length * price).toLocaleString();
+
+  const recent = [...students].sort((a, b) => (b.lastActiveAt || 0) - (a.lastActiveAt || 0)).slice(0, 8);
+  const body = document.getElementById('recentActivityBody');
+  if (recent.length === 0) { body.innerHTML = '<div class="empty"><div class="empty-icon">👋</div>No students yet</div>'; return; }
+  body.innerHTML = recent.map(s => `
+    <div class="row-card">
+      ${thumbOrFallback(s.photoUrl, '👤')}
+      <div class="info">
+        <div class="name">${s.studentName || 'Unnamed'}</div>
+        <div class="meta">${s.lastActiveAt ? new Date(s.lastActiveAt).toLocaleDateString() : '—'} · ${s.lessonsCompleted || 0} lessons · ${s.analysesRun || 0} analyses</div>
+      </div>
+      <div class="side">
+        <span class="badge ${s.subscriptionStatus || 'pending'}">${(s.subscriptionStatus || 'pending').toUpperCase()}</span>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ---------------------------------------------------------------------
+// Students
+// ---------------------------------------------------------------------
+
+let studentsCache = [];
+let studentFilterVal = 'all';
+
+async function loadStudents() {
+  const snap = await db.collection('students').orderBy('createdAt', 'desc').get();
+  studentsCache = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  renderStudents();
+}
+
+document.getElementById('studentFilter').addEventListener('click', (e) => {
+  const btn = e.target.closest('button[data-f]');
+  if (!btn) return;
+  document.querySelectorAll('#studentFilter button').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  studentFilterVal = btn.dataset.f;
+  renderStudents();
+});
+
+function renderStudents() {
+  const body = document.getElementById('studentsBody');
+  let list = studentsCache;
+  if (studentFilterVal !== 'all') list = list.filter(s => (s.subscriptionStatus || 'pending') === studentFilterVal);
+  if (list.length === 0) { body.innerHTML = '<div class="empty"><div class="empty-icon">👥</div>No students found</div>'; return; }
+  body.innerHTML = list.map(s => `
+    <div class="row-card" onclick="viewStudent('${s.id}')">
+      ${thumbOrFallback(s.photoUrl, '👤')}
+      <div class="info">
+        <div class="name">${s.studentName || 'Unnamed'}</div>
+        <div class="meta">${s.fatherName ? 'S/O ' + s.fatherName : ''}${s.studentIdCardNumber ? ' · ' + s.studentIdCardNumber : ''}</div>
+      </div>
+      <div class="side">
+        <span class="badge ${s.subscriptionStatus || 'pending'}">${(s.subscriptionStatus || 'pending').toUpperCase()}</span>
+        <div class="row-actions">
+          ${s.subscriptionStatus !== 'active'
+            ? `<button class="small" onclick="event.stopPropagation(); setStudentStatus('${s.id}','active')">Activate</button>`
+            : `<button class="small danger" onclick="event.stopPropagation(); setStudentStatus('${s.id}','expired')">Deactivate</button>`}
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+async function setStudentStatus(uid, status) {
+  await db.collection('students').doc(uid).update({
+    subscriptionStatus: status,
+    subscriptionActivatedAt: status === 'active' ? Date.now() : null,
+  });
+  showToast('Student status updated to ' + status);
+  loadStudents();
+  loadDashboard();
+}
+
+let currentStudentId = null;
+
+function viewStudent(uid) {
+  const s = studentsCache.find(x => x.id === uid);
+  if (!s) return;
+  currentStudentId = uid;
+  document.getElementById('studentSheetTitle').textContent = 'Student Details';
+  document.getElementById('studentModalBody').classList.remove('sheet-hidden');
+  document.getElementById('studentEditFields').classList.remove('sheet-visible');
+  document.getElementById('studentEditToggleBtn').textContent = 'Edit Profile';
+  document.getElementById('studentModalBody').innerHTML = `
+    ${s.photoUrl ? `<img class="thumb" style="width:88px;height:88px; border-radius:16px;" src="${s.photoUrl}" onclick="openImgZoom('${s.photoUrl}')" />` : ''}
+    <p><b>Name:</b> ${s.studentName || '—'}</p>
+    <p><b>Father's Name:</b> ${s.fatherName || '—'}</p>
+    <p><b>ID Card Number:</b> ${s.studentIdCardNumber || '—'}</p>
+    <p><b>Father's Address:</b> ${s.fatherAddress || '—'}</p>
+    <p><b>Qualification:</b> ${s.qualification || '—'}</p>
+    <p><b>Email:</b> ${s.email || '—'}</p>
+    <p><b>Phone:</b> ${s.phone || '—'}</p>
+    <p><b>Subscription:</b> ${s.subscriptionStatus || 'pending'}</p>
+    <p><b>Lessons Completed:</b> ${s.lessonsCompleted || 0}</p>
+    <p><b>Analyses Run:</b> ${s.analysesRun || 0}</p>
+    ${s.idCardPhotoUrl ? `<p><b>ID Card Photo:</b><br/><img class="thumb" style="width:170px;height:106px; border-radius:12px;" src="${s.idCardPhotoUrl}" onclick="openImgZoom('${s.idCardPhotoUrl}')" /></p>` : ''}
+  `;
+
+  document.getElementById('editStudentName').value = s.studentName || '';
+  document.getElementById('editFatherName').value = s.fatherName || '';
+  document.getElementById('editIdCardNumber').value = s.studentIdCardNumber || '';
+  document.getElementById('editFatherAddress').value = s.fatherAddress || '';
+  document.getElementById('editQualification').value = s.qualification || '';
+  document.getElementById('editPhone').value = s.phone || '';
+  document.getElementById('editSubStatus').value = s.subscriptionStatus || 'pending';
+
+  document.getElementById('studentModalBackdrop').style.display = 'flex';
+}
+
+function toggleStudentEdit() {
+  const viewMode = document.getElementById('studentModalBody');
+  const editMode = document.getElementById('studentEditFields');
+  const btn = document.getElementById('studentEditToggleBtn');
+  const isCurrentlyEditing = editMode.classList.contains('sheet-visible');
+  if (isCurrentlyEditing) {
+    saveStudentEdit();
+  } else {
+    viewMode.classList.add('sheet-hidden');
+    editMode.classList.add('sheet-visible');
+    document.getElementById('studentSheetTitle').textContent = 'Edit Student Profile';
+    btn.textContent = 'Save Changes';
+  }
+}
+
+async function saveStudentEdit() {
+  if (!currentStudentId) return;
+  const payload = {
+    studentName: document.getElementById('editStudentName').value,
+    fatherName: document.getElementById('editFatherName').value,
+    studentIdCardNumber: document.getElementById('editIdCardNumber').value,
+    fatherAddress: document.getElementById('editFatherAddress').value,
+    qualification: document.getElementById('editQualification').value,
+    phone: document.getElementById('editPhone').value,
+    subscriptionStatus: document.getElementById('editSubStatus').value,
+  };
+  await db.collection('students').doc(currentStudentId).update(payload);
+  showToast('Profile updated');
+  closeStudentModal();
+  loadStudents();
+  loadDashboard();
+}
+
+function closeStudentModal() { document.getElementById('studentModalBackdrop').style.display = 'none'; currentStudentId = null; }
+
+// ---------------------------------------------------------------------
+// Payments
+// ---------------------------------------------------------------------
+
+let paymentsCache = [];
+let paymentFilterVal = 'all';
+
+async function loadPayments() {
+  const snap = await db.collection('payments').orderBy('submittedAt', 'desc').limit(100).get();
+  paymentsCache = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  renderPayments();
+}
+
+document.getElementById('paymentFilter').addEventListener('click', (e) => {
+  const btn = e.target.closest('button[data-f]');
+  if (!btn) return;
+  document.querySelectorAll('#paymentFilter button').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  paymentFilterVal = btn.dataset.f;
+  renderPayments();
+});
+
+function renderPayments() {
+  const body = document.getElementById('paymentsBody');
+  let list = paymentsCache;
+  if (paymentFilterVal !== 'all') list = list.filter(p => p.status === paymentFilterVal);
+  if (list.length === 0) { body.innerHTML = '<div class="empty"><div class="empty-icon">💳</div>No payments found</div>'; return; }
+  body.innerHTML = list.map(p => `
+    <div class="row-card">
+      ${thumbOrFallback(p.screenshotUrl, '🧾')}
+      <div class="info">
+        <div class="name">${p.studentName || 'Unnamed'}</div>
+        <div class="meta">${p.submittedAt ? new Date(p.submittedAt).toLocaleString() : '—'}</div>
+      </div>
+      <div class="side">
+        <span class="badge ${p.status}">${p.status.toUpperCase()}</span>
+        ${p.status === 'pending' ? `
+          <div class="row-actions">
+            <button class="small" onclick="approvePayment('${p.id}','${p.uid}')">Approve</button>
+            <button class="small danger" onclick="rejectPayment('${p.id}')">Reject</button>
+          </div>` : ''}
+      </div>
+    </div>
+  `).join('');
+}
+
+async function approvePayment(paymentId, uid) {
+  await db.collection('payments').doc(paymentId).update({ status: 'approved' });
+  await db.collection('students').doc(uid).update({
+    subscriptionStatus: 'active',
+    subscriptionActivatedAt: Date.now(),
+    subscriptionExpiresAt: Date.now() + 30 * 24 * 60 * 60 * 1000,
+  });
+  showToast('Payment approved, student activated');
+  loadPayments(); loadStudents(); loadDashboard();
+}
+
+async function rejectPayment(paymentId) {
+  await db.collection('payments').doc(paymentId).update({ status: 'rejected' });
+  showToast('Payment rejected');
+  loadPayments();
+}
+
+// ---------------------------------------------------------------------
+// Courses & Lessons
+// ---------------------------------------------------------------------
+
+let coursesCache = [];
+let selectedCourseId = null;
+
+function openCourseSheet() { document.getElementById('courseModalBackdrop').style.display = 'flex'; }
+function closeCourseSheet() { document.getElementById('courseModalBackdrop').style.display = 'none'; }
+let editingLessonId = null;
+
+function openLessonSheet(lesson) {
+  if (!selectedCourseId) { showToast('Select a course first'); return; }
+  editingLessonId = lesson ? lesson.id : null;
+  document.getElementById('lessonSheetTitle').textContent = lesson ? 'Edit Lesson' : 'Add Lesson';
+  document.getElementById('lessonSaveBtn').textContent = lesson ? 'Save Changes' : 'Add Lesson';
+  document.getElementById('lessonTitle').value = lesson ? (lesson.title || '') : '';
+  document.getElementById('lessonTitleUr').value = lesson ? (lesson.titleUrdu || '') : '';
+  document.getElementById('lessonContent').value = lesson ? (lesson.contentText || '') : '';
+  document.getElementById('lessonContentUr').value = lesson ? (lesson.contentTextUrdu || '') : '';
+  document.getElementById('lessonVideoEn').value = lesson ? (lesson.videoUrlEn || '') : '';
+  document.getElementById('lessonVideoUr').value = lesson ? (lesson.videoUrlUr || '') : '';
+  document.getElementById('lessonVideoThumb').value = lesson ? (lesson.videoThumbUrl || '') : '';
+  document.getElementById('lessonPdf').value = lesson ? (lesson.pdfUrl || '') : '';
+  document.getElementById('lessonOrder').value = lesson ? (lesson.order || 1) : 1;
+  document.getElementById('lessonModalBackdrop').style.display = 'flex';
+}
+function closeLessonSheet() { document.getElementById('lessonModalBackdrop').style.display = 'none'; editingLessonId = null; }
+
+async function loadCourses() {
+  const snap = await db.collection('courses').orderBy('order').get();
+  coursesCache = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  const list = document.getElementById('coursesList');
+  if (coursesCache.length === 0) { list.innerHTML = '<div class="empty"><div class="empty-icon">📚</div>No courses yet — tap + to add one</div>'; return; }
+  list.innerHTML = coursesCache.map(c => `
+    <div class="course-item">
+      <div>
+        <div class="t">${c.title}</div>
+        <div class="lvl">${c.level}</div>
+      </div>
+      <div class="row-actions">
+        <button class="small" onclick="selectCourse('${c.id}','${c.title.replace(/'/g, "\\'")}')">Lessons</button>
+        <button class="small danger" onclick="deleteCourse('${c.id}')">Delete</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+async function createCourse() {
+  const title = document.getElementById('courseTitle').value;
+  if (!title) { showToast('Title is required'); return; }
+  await db.collection('courses').add({
+    title,
+    titleUrdu: document.getElementById('courseTitleUr').value,
+    description: document.getElementById('courseDesc').value,
+    level: document.getElementById('courseLevel').value,
+    order: parseInt(document.getElementById('courseOrder').value || '1'),
+    iconName: document.getElementById('courseIcon').value,
+  });
+  showToast('Course added');
+  document.getElementById('courseTitle').value = '';
+  document.getElementById('courseTitleUr').value = '';
+  document.getElementById('courseDesc').value = '';
+  closeCourseSheet();
+  loadCourses();
+}
+
+async function deleteCourse(id) {
+  if (!confirm('Delete this course and all its lessons?')) return;
+  const lessonsSnap = await db.collection('courses').doc(id).collection('lessons').get();
+  await Promise.all(lessonsSnap.docs.map(d => d.ref.delete()));
+  await db.collection('courses').doc(id).delete();
+  showToast('Course deleted');
+  loadCourses();
+}
+
+function selectCourse(id, title) {
+  selectedCourseId = id;
+  document.getElementById('selectedCourseTitle').textContent = title;
+  document.getElementById('lessonsPanel').style.display = 'block';
+  loadLessons(id);
+  document.getElementById('quizCourseTitle').textContent = title;
+  document.getElementById('quizPanel').style.display = 'block';
+  loadQuizStatus(id);
+  document.getElementById('lessonsPanel').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+async function loadLessons(courseId) {
+  const snap = await db.collection('courses').doc(courseId).collection('lessons').orderBy('order').get();
+  const lessons = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  const list = document.getElementById('lessonsList');
+  if (lessons.length === 0) { list.innerHTML = '<div class="empty">No lessons yet</div>'; return; }
+  list.innerHTML = lessons.map(l => `
+    <div class="lesson-item">
+      <div class="t">${l.title} ${(l.videoUrlEn || l.videoUrlUr) ? '🎬' : ''} ${l.pdfUrl ? '📄' : ''}</div>
+      <div class="row-actions">
+        <button class="small secondary" onclick='openLessonSheet(${JSON.stringify(l).replace(/'/g, "&apos;")})'>Edit</button>
+        <button class="small danger" onclick="deleteLesson('${courseId}','${l.id}')">Delete</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ---------------------------------------------------------------------
+// Quiz generation — chunked, one small request per lesson instead of one
+// giant request for the whole course. This keeps every request small
+// (fewer tokens = cheaper + less likely to hit rate limits), and lets
+// generation pause/resume cleanly: progress is saved to Firestore after
+// every single lesson, so closing the tab or hitting a rate limit never
+// loses work — clicking "Generate" again just continues from where it
+// stopped instead of starting over or duplicating questions.
+// ---------------------------------------------------------------------
+
+let quizGenerationCancelled = false;
+
+async function saveQuizGroqKey() {
+  const key = document.getElementById('quizGroqKey').value;
+  if (!key) { showToast('Enter a Groq API key first'); return; }
+  await db.collection('config').doc('quizGenerator').set({ groqApiKey: key }, { merge: true });
+  showToast('Quiz generator key saved');
+}
+
+function cancelQuizGeneration() {
+  quizGenerationCancelled = true;
+  document.getElementById('quizStatusText').textContent = 'Pausing after the current lesson finishes...';
+}
+
+/** Sleep helper for backoff delays. */
+function sleepMs(ms) { return new Promise(resolve => setTimeout(resolve, ms)); }
+
+/**
+ * Calls Groq with automatic retry on rate-limit (429) responses.
+ * Reads the Retry-After header when present; otherwise backs off
+ * 5s, 15s, 30s, 60s, 60s... and keeps trying rather than failing,
+ * since the whole point is "wait out the limit, don't give up".
+ */
+async function callGroqWithRetry(groqKey, messages, maxTokens, onWaiting) {
+  const backoffSchedule = [5000, 15000, 30000, 60000, 60000, 60000];
+  let attempt = 0;
+
+  while (true) {
+    if (quizGenerationCancelled) throw new Error('CANCELLED');
+
+    const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${groqKey}` },
+      body: JSON.stringify({
+        model: 'llama-3.1-8b-instant',
+        messages,
+        max_tokens: maxTokens,
+        temperature: 0.5,
+      }),
+    });
+
+    if (res.status === 429) {
+      const retryAfterHeader = res.headers.get('retry-after');
+      const waitMs = retryAfterHeader ? (parseFloat(retryAfterHeader) * 1000) : backoffSchedule[Math.min(attempt, backoffSchedule.length - 1)];
+      attempt++;
+      if (onWaiting) onWaiting(Math.ceil(waitMs / 1000));
+      await sleepMs(waitMs);
+      continue; // retry the same request, doesn't count as a new lesson
+    }
+
+    if (!res.ok) {
+      const errBody = await res.text();
+      throw new Error(`Groq API error (${res.status}): ${errBody.slice(0, 200)}`);
+    }
+
+    return res.json();
+  }
+}
+
+async function loadQuizGroqKey() {
+  const snap = await db.collection('config').doc('quizGenerator').get();
+  if (snap.exists && snap.data().groqApiKey) {
+    document.getElementById('quizGroqKey').value = snap.data().groqApiKey;
+  }
+}
+
+async function loadQuizStatus(courseId) {
+  const snap = await db.collection('courses').doc(courseId).collection('quiz').doc('generated').get();
+  const statusText = document.getElementById('quizStatusText');
+  const preview = document.getElementById('quizPreview');
+  const btn = document.getElementById('generateQuizBtn');
+  const lessonsSnap = await db.collection('courses').doc(courseId).collection('lessons').orderBy('order').get();
+  const totalLessons = lessonsSnap.size;
+
+  if (snap.exists && snap.data().questions && snap.data().questions.length > 0) {
+    const q = snap.data();
+    const doneLessons = q.lessonsCovered ? q.lessonsCovered.length : 0;
+    const generatedDate = q.generatedAt ? new Date(q.generatedAt).toLocaleDateString() : 'unknown date';
+
+    preview.style.display = 'block';
+    preview.innerHTML = q.questions.map((qq, i) => `
+      <div class="lesson-item"><div class="t">${i + 1}. ${qq.question}</div></div>
+    `).join('');
+
+    if (q.isComplete) {
+      statusText.textContent = `✅ Quiz complete — ${q.questions.length} questions from all ${totalLessons} lessons, generated ${generatedDate}.`;
+      btn.textContent = 'Regenerate Quiz (starts over from lesson 1)';
+    } else {
+      statusText.textContent = `⏸ Partially done — ${q.questions.length} questions from ${doneLessons}/${totalLessons} lessons. Click to continue.`;
+      btn.textContent = `Continue Generating (lesson ${doneLessons + 1} of ${totalLessons})`;
+    }
+  } else {
+    statusText.textContent = `No quiz generated yet — ${totalLessons} lesson(s) in this course.`;
+    preview.style.display = 'none';
+    preview.innerHTML = '';
+    btn.textContent = 'Generate Quiz (small request per lesson)';
+  }
+}
+
+async function generateQuizForCourse() {
+  if (!selectedCourseId) return;
+  const btn = document.getElementById('generateQuizBtn');
+  const statusText = document.getElementById('quizStatusText');
+  quizGenerationCancelled = false;
+
+  const keySnap = await db.collection('config').doc('quizGenerator').get();
+  const groqKey = keySnap.exists ? keySnap.data().groqApiKey : '';
+  if (!groqKey) { showToast('Set the Quiz Generator Groq key first (below)'); return; }
+
+  const lessonsSnap = await db.collection('courses').doc(selectedCourseId).collection('lessons').orderBy('order').get();
+  const lessons = lessonsSnap.docs.map(d => d.data());
+  if (lessons.length === 0) { showToast('This course has no lessons yet'); return; }
+
+  const courseTitle = document.getElementById('quizCourseTitle').textContent;
+
+  // Resume from existing progress instead of starting over. If the admin
+  // clicked "Regenerate" on an already-complete quiz, existingDoc.isComplete
+  // will be true — in that case we intentionally restart clean (covered by
+  // the confirm dialog in the regenerate button label).
+  const existingSnap = await db.collection('courses').doc(selectedCourseId).collection('quiz').doc('generated').get();
+  const existingDoc = existingSnap.exists ? existingSnap.data() : null;
+  const startOver = existingDoc && existingDoc.isComplete;
+
+  let allQuestions = (existingDoc && !startOver) ? [...existingDoc.questions] : [];
+  let lessonsCovered = (existingDoc && !startOver) ? [...existingDoc.lessonsCovered] : [];
+
+  if (startOver) {
+    const confirmRestart = confirm('This course already has a complete quiz. Regenerate from scratch? This replaces all existing questions.');
+    if (!confirmRestart) return;
+    allQuestions = [];
+    lessonsCovered = [];
+  }
+
+  const remainingLessons = lessons.filter(l => !lessonsCovered.includes(l.title));
+  if (remainingLessons.length === 0) {
+    showToast('All lessons are already covered');
+    return;
+  }
+
+  btn.disabled = true;
+  const cancelBtn = document.getElementById('cancelQuizGenBtn');
+  if (cancelBtn) cancelBtn.style.display = 'inline-block';
+
+  for (let i = 0; i < remainingLessons.length; i++) {
+    if (quizGenerationCancelled) {
+      statusText.textContent = `Paused — ${allQuestions.length} questions saved so far. Click "Continue Generating" to resume anytime.`;
+      break;
+    }
+
+    const lesson = remainingLessons[i];
+    const lessonProgress = lessonsCovered.length + 1;
+    btn.textContent = `Generating... lesson ${lessonProgress}/${lessons.length}: "${lesson.title}"`;
+    statusText.textContent = `Reading "${lesson.title}" and writing 1-2 questions from it...`;
+
+    // Small, focused prompt: ONE lesson's text, asking for only 1-2
+    // questions. This is the key change from before — a single 12,000-char
+    // "whole course" prompt became N tiny per-lesson prompts, each using a
+    // fraction of the tokens, which is both cheaper and far less likely to
+    // trip a rate limit in the first place.
+    const existingQuestionsList = allQuestions.map(q => `- ${q.question}`).join('\n') || '(none yet)';
+    const lessonText = (lesson.contentText || '').slice(0, 3000);
+
+    const prompt = `You are creating quiz questions for one lesson in a trading education course.
+Course: "${courseTitle}"
+Lesson: "${lesson.title}"
+
+Lesson content:
+${lessonText}
+
+Write EXACTLY 1 or 2 multiple-choice questions testing understanding of THIS lesson specifically. Do not repeat or rephrase any of these already-used questions from other lessons in this course:
+${existingQuestionsList}
+
+Each question needs exactly 4 options, one correct answer, and a one-sentence explanation. Provide BOTH English and real Urdu script (not Roman Urdu) for question, options, and explanation.
+
+Respond with ONLY a raw JSON array (no markdown fences, no preamble), in exactly this shape:
+[
+  {
+    "question": "English question text",
+    "questionUrdu": "اردو سوال کا متن",
+    "options": ["A", "B", "C", "D"],
+    "optionsUrdu": ["اے", "بی", "سی", "ڈی"],
+    "correctIndex": 0,
+    "explanation": "Why this is correct, one sentence.",
+    "explanationUrdu": "یہ کیوں درست ہے، ایک جملہ۔"
+  }
+]`;
+
+    try {
+      const data = await callGroqWithRetry(
+        groqKey,
+        [
+          { role: 'system', content: 'You output only valid raw JSON, never markdown code fences or commentary.' },
+          { role: 'user', content: prompt },
+        ],
+        800, // small max_tokens — this is a 1-2 question request, not a whole quiz
+        (waitSeconds) => {
+          statusText.textContent = `Rate limit hit — waiting ${waitSeconds}s before retrying (progress already saved, safe to leave this open)...`;
+        }
+      );
+
+      let raw = data.choices[0].message.content.trim();
+      raw = raw.replace(/^```json/, '').replace(/^```/, '').replace(/```$/, '').trim();
+      const newQuestions = JSON.parse(raw);
+
+      if (Array.isArray(newQuestions) && newQuestions.length > 0) {
+        allQuestions = allQuestions.concat(newQuestions);
+      }
+      lessonsCovered.push(lesson.title);
+
+      // Save progress after EVERY lesson, not just at the end — this is
+      // what makes pause/resume and rate-limit-survival possible. Worst
+      // case if something crashes: you lose at most one lesson's questions.
+      await db.collection('courses').doc(selectedCourseId).collection('quiz').doc('generated').set({
+        courseId: selectedCourseId,
+        questions: allQuestions,
+        lessonsCovered,
+        isComplete: lessonsCovered.length >= lessons.length,
+        generatedAt: Date.now(),
+      });
+
+      loadQuizStatus(selectedCourseId);
+    } catch (e) {
+      if (e.message === 'CANCELLED') {
+        statusText.textContent = `Paused — ${allQuestions.length} questions saved so far. Click "Continue Generating" to resume anytime.`;
+      } else {
+        showToast('Error on "' + lesson.title + '": ' + e.message);
+        statusText.textContent = `Stopped on "${lesson.title}" — ${allQuestions.length} questions saved so far. Click "Continue Generating" to retry this lesson.`;
+      }
+      break;
+    }
+  }
+
+  btn.disabled = false;
+  if (cancelBtn) cancelBtn.style.display = 'none';
+  if (!quizGenerationCancelled && lessonsCovered.length >= lessons.length) {
+    showToast(`Quiz complete: ${allQuestions.length} questions across ${lessons.length} lessons`);
+  }
+  loadQuizStatus(selectedCourseId);
+}
+
+async function saveLesson() {
+  if (!selectedCourseId) return;
+  const title = document.getElementById('lessonTitle').value;
+  if (!title) { showToast('Lesson title is required'); return; }
+  const payload = {
+    courseId: selectedCourseId,
+    title,
+    titleUrdu: document.getElementById('lessonTitleUr').value,
+    contentText: document.getElementById('lessonContent').value,
+    contentTextUrdu: document.getElementById('lessonContentUr').value,
+    videoUrlEn: document.getElementById('lessonVideoEn').value,
+    videoUrlUr: document.getElementById('lessonVideoUr').value,
+    videoThumbUrl: document.getElementById('lessonVideoThumb').value,
+    pdfUrl: document.getElementById('lessonPdf').value,
+    order: parseInt(document.getElementById('lessonOrder').value || '1'),
+  };
+  if (editingLessonId) {
+    await db.collection('courses').doc(selectedCourseId).collection('lessons').doc(editingLessonId).update(payload);
+    showToast('Lesson updated');
+  } else {
+    await db.collection('courses').doc(selectedCourseId).collection('lessons').add(payload);
+    showToast('Lesson added');
+  }
+  ['lessonTitle','lessonTitleUr','lessonContent','lessonContentUr','lessonVideoEn','lessonVideoUr','lessonVideoThumb','lessonPdf'].forEach(id => document.getElementById(id).value = '');
+  closeLessonSheet();
+  loadLessons(selectedCourseId);
+}
+
+async function deleteLesson(courseId, lessonId) {
+  await db.collection('courses').doc(courseId).collection('lessons').doc(lessonId).delete();
+  showToast('Lesson deleted');
+  loadLessons(courseId);
+}
+
+// ---------------------------------------------------------------------
+// Candlestick Chart Demo (Canvas — no external libs)
+// ---------------------------------------------------------------------
+
+let chartStarted = false;
+let chartData = [];
+let chartInterval = null;
+let basePrice = 2385.40;
+
+function genCandle(prevClose) {
+  const volatility = prevClose * 0.0012;
+  const open = prevClose;
+  const close = open + (Math.random() - 0.5) * volatility * 2;
+  const high = Math.max(open, close) + Math.random() * volatility;
+  const low = Math.min(open, close) - Math.random() * volatility;
+  return { open, high, low, close };
+}
+
+function initChartData() {
+  chartData = [];
+  let price = basePrice;
+  for (let i = 0; i < 40; i++) {
+    const c = genCandle(price);
+    chartData.push(c);
+    price = c.close;
+  }
+}
+
+function drawChart() {
+  const canvas = document.getElementById('candleCanvas');
+  if (!canvas || chartData.length === 0) return;
+  const dpr = window.devicePixelRatio || 1;
+  const rect = canvas.getBoundingClientRect();
+  canvas.width = rect.width * dpr;
+  canvas.height = rect.height * dpr;
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+  const W = rect.width, H = rect.height;
+  ctx.clearRect(0, 0, W, H);
+
+  const prices = chartData.flatMap(c => [c.high, c.low]);
+  const max = Math.max(...prices), min = Math.min(...prices);
+  const pad = (max - min) * 0.1 || 1;
+  const top = max + pad, bottom = min - pad;
+  const range = top - bottom;
+
+  // grid lines
+  ctx.strokeStyle = '#12191d';
+  ctx.lineWidth = 1;
+  for (let i = 0; i <= 4; i++) {
+    const y = (H / 4) * i;
+    ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
+  }
+
+  const candleW = W / chartData.length;
+  const bodyW = Math.max(candleW * 0.55, 2);
+
+  chartData.forEach((c, i) => {
+    const x = i * candleW + candleW / 2;
+    const yOpen = H - ((c.open - bottom) / range) * H;
+    const yClose = H - ((c.close - bottom) / range) * H;
+    const yHigh = H - ((c.high - bottom) / range) * H;
+    const yLow = H - ((c.low - bottom) / range) * H;
+    const up = c.close >= c.open;
+    const color = up ? '#34e39a' : '#ff5c6a';
+
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(x, yHigh); ctx.lineTo(x, yLow); ctx.stroke();
+
+    ctx.fillStyle = color;
+    const bodyTop = Math.min(yOpen, yClose);
+    const bodyH = Math.max(Math.abs(yClose - yOpen), 1.5);
+    ctx.fillRect(x - bodyW / 2, bodyTop, bodyW, bodyH);
+  });
+}
+
+function updateChartHeader() {
+  const last = chartData[chartData.length - 1];
+  const first = chartData[0];
+  if (!last) return;
+  const change = last.close - first.open;
+  const changePct = (change / first.open) * 100;
+  document.getElementById('chartPrice').textContent = last.close.toFixed(2);
+  const changeEl = document.getElementById('chartChange');
+  changeEl.textContent = (change >= 0 ? '▲ ' : '▼ ') + Math.abs(change).toFixed(2) + ' (' + changePct.toFixed(2) + '%)';
+  changeEl.style.color = change >= 0 ? '#34e39a' : '#ff5c6a';
+}
+
+function startChartDemo() {
+  chartStarted = true;
+  initChartData();
+  drawChart();
+  updateChartHeader();
+  renderTicker();
+  if (chartInterval) clearInterval(chartInterval);
+  chartInterval = setInterval(() => {
+    const prev = chartData[chartData.length - 1];
+    const next = genCandle(prev.close);
+    chartData.push(next);
+    if (chartData.length > 40) chartData.shift();
+    drawChart();
+    updateChartHeader();
+    renderTicker();
+  }, 1800);
+}
+
+document.getElementById('chartFilter').addEventListener('click', (e) => {
+  const btn = e.target.closest('button[data-tf]');
+  if (!btn) return;
+  document.querySelectorAll('#chartFilter button').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  initChartData();
+  drawChart();
+  updateChartHeader();
+});
+
+const tickerSymbols = ['EUR/USD', 'GBP/USD', 'BTC/USD', 'XAU/USD', 'US30'];
+function renderTicker() {
+  const list = document.getElementById('tickerList');
+  if (!list) return;
+  list.innerHTML = tickerSymbols.map(sym => {
+    const change = (Math.random() - 0.5) * 1.4;
+    const price = (sym === 'BTC/USD' ? 64000 + Math.random() * 2000 : sym === 'US30' ? 39500 + Math.random() * 300 : sym === 'XAU/USD' ? 2385 + Math.random() * 10 : 1 + Math.random() * 0.5);
+    const up = change >= 0;
+    return `
+      <div class="row-card" style="cursor:default;">
+        <div class="thumb-fallback">${up ? '📈' : '📉'}</div>
+        <div class="info">
+          <div class="name">${sym}</div>
+          <div class="meta">${price.toFixed(sym.includes('USD') && sym !== 'BTC/USD' && sym !== 'XAU/USD' && sym !== 'US30' ? 4 : 2)}</div>
+        </div>
+        <div class="side">
+          <span class="badge ${up ? 'active' : 'expired'}">${up ? '+' : ''}${change.toFixed(2)}%</span>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+window.addEventListener('resize', () => { if (chartStarted) drawChart(); });
+
+async function loadConfig() {
+  const snap = await db.collection('config').doc('app').get();
+  if (!snap.exists) return;
+  const c = snap.data();
+  document.getElementById('configPrice').value = c.subscriptionPricePkr || 500;
+  document.getElementById('configWhatsapp').value = c.whatsappNumber || '923062015326';
+  document.getElementById('configGroqKey').value = c.groqApiKey || '';
+  document.getElementById('configJazzCashNumber').value = c.jazzCashNumber || '';
+  document.getElementById('configEasyPaisaNumber').value = c.easyPaisaNumber || '';
+
+  const jazzCashUrl = c.jazzCashQrUrl || c.paymentQrUrl; // fall back to legacy single-QR field
+  if (jazzCashUrl) {
+    const preview = document.getElementById('jazzCashPreview');
+    preview.src = jazzCashUrl;
+    preview.style.display = 'block';
+  }
+  if (c.easyPaisaQrUrl) {
+    const preview = document.getElementById('easyPaisaPreview');
+    preview.src = c.easyPaisaQrUrl;
+    preview.style.display = 'block';
+  }
+}
+
+async function saveConfig() {
+  await db.collection('config').doc('app').set({
+    subscriptionPricePkr: parseInt(document.getElementById('configPrice').value || '500'),
+    whatsappNumber: document.getElementById('configWhatsapp').value,
+    groqApiKey: document.getElementById('configGroqKey').value,
+    jazzCashNumber: document.getElementById('configJazzCashNumber').value,
+    easyPaisaNumber: document.getElementById('configEasyPaisaNumber').value,
+  }, { merge: true });
+  showToast('Settings saved');
+}
+
+async function uploadQrCode(method) {
+  const fileInputId = method === 'jazzcash' ? 'jazzCashFileInput' : 'easyPaisaFileInput';
+  const previewId = method === 'jazzcash' ? 'jazzCashPreview' : 'easyPaisaPreview';
+  const firestoreField = method === 'jazzcash' ? 'jazzCashQrUrl' : 'easyPaisaQrUrl';
+
+  const fileInput = document.getElementById(fileInputId);
+  if (!fileInput.files[0]) { showToast('Select an image first'); return; }
+  const file = fileInput.files[0];
+  const reader = new FileReader();
+  reader.onload = async () => {
+    const base64 = reader.result.split(',')[1];
+    const formData = new FormData();
+    formData.append('key', IMGBB_API_KEY);
+    formData.append('image', base64);
+    try {
+      const res = await fetch('https://api.imgbb.com/1/upload', { method: 'POST', body: formData });
+      const data = await res.json();
+      if (data.success) {
+        await db.collection('config').doc('app').set({ [firestoreField]: data.data.url }, { merge: true });
+        const preview = document.getElementById(previewId);
+        preview.src = data.data.url;
+        preview.style.display = 'block';
+        showToast((method === 'jazzcash' ? 'JazzCash' : 'EasyPaisa') + ' QR uploaded and saved');
+      } else {
+        showToast('Upload failed');
+      }
+    } catch (e) {
+      showToast('Upload error: ' + e.message);
+    }
+  };
+  reader.readAsDataURL(file);
+}
+
+// ---------------------------------------------------------------------
+// Announcements (with edit support)
+// ---------------------------------------------------------------------
+
+let announcementsCache = [];
+let editingAnnouncementId = null;
+
+async function loadAnnouncements() {
+  const snap = await db.collection('announcements').orderBy('createdAt', 'desc').limit(20).get();
+  announcementsCache = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  renderAnnouncements();
+}
+
+function renderAnnouncements() {
+  const list = document.getElementById('announcementsList');
+  if (announcementsCache.length === 0) { list.innerHTML = '<div class="empty"><div class="empty-icon">📢</div>No announcements yet</div>'; return; }
+  list.innerHTML = announcementsCache.map(a => `
+    <div class="lesson-item" style="align-items:flex-start;">
+      <div style="flex:1; min-width:0;">
+        <div class="t">${a.title}</div>
+        <div class="lvl" style="margin-top:4px; white-space:normal; line-height:1.4;">${a.message || ''}</div>
+      </div>
+      <div class="row-actions" style="flex-shrink:0;">
+        <button class="small secondary" onclick='openAnnouncementSheet(${JSON.stringify(a).replace(/'/g, "&apos;")})'>Edit</button>
+        <button class="small danger" onclick="deleteAnnouncement('${a.id}')">Delete</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function openAnnouncementSheet(ann) {
+  editingAnnouncementId = ann ? ann.id : null;
+  document.getElementById('announcementSheetTitle').textContent = ann ? 'Edit Announcement' : 'New Announcement';
+  document.getElementById('announcementSaveBtn').textContent = ann ? 'Save Changes' : 'Post Announcement';
+  document.getElementById('annTitle').value = ann ? (ann.title || '') : '';
+  document.getElementById('annTitleUr').value = ann ? (ann.titleUrdu || '') : '';
+  document.getElementById('annMessage').value = ann ? (ann.message || '') : '';
+  document.getElementById('annMessageUr').value = ann ? (ann.messageUrdu || '') : '';
+  document.getElementById('annIcon').value = ann ? (ann.iconName || 'Campaign') : 'Campaign';
+  document.getElementById('announcementModalBackdrop').style.display = 'flex';
+}
+function closeAnnouncementSheet() { document.getElementById('announcementModalBackdrop').style.display = 'none'; editingAnnouncementId = null; }
+
+async function saveAnnouncement() {
+  const title = document.getElementById('annTitle').value;
+  if (!title) { showToast('Title is required'); return; }
+  const payload = {
+    title,
+    titleUrdu: document.getElementById('annTitleUr').value,
+    message: document.getElementById('annMessage').value,
+    messageUrdu: document.getElementById('annMessageUr').value,
+    iconName: document.getElementById('annIcon').value,
+  };
+  if (editingAnnouncementId) {
+    await db.collection('announcements').doc(editingAnnouncementId).update(payload);
+    showToast('Announcement updated');
+  } else {
+    payload.createdAt = Date.now();
+    await db.collection('announcements').add(payload);
+    showToast('Announcement posted');
+  }
+  ['annTitle','annTitleUr','annMessage','annMessageUr'].forEach(id => document.getElementById(id).value = '');
+  closeAnnouncementSheet();
+  loadAnnouncements();
+}
+
+async function deleteAnnouncement(id) {
+  if (!confirm('Delete this announcement?')) return;
+  await db.collection('announcements').doc(id).delete();
+  showToast('Announcement deleted');
+  loadAnnouncements();
+}
+
+// ---------------------------------------------------------------------
+// App Update Config
+// ---------------------------------------------------------------------
+
+async function loadUpdateConfig() {
+  const snap = await db.collection('config').doc('app_version').get();
+  if (!snap.exists) return;
+  const c = snap.data();
+  document.getElementById('updateVersionCode').value = c.latestVersionCode || '';
+  document.getElementById('updateVersionName').value = c.latestVersionName || '';
+  document.getElementById('updateApkUrl').value = c.apkUrl || '';
+  document.getElementById('updateNotes').value = c.releaseNotes || '';
+  document.getElementById('updateForce').checked = !!c.forceUpdate;
+}
+
+async function saveUpdateConfig() {
+  const versionCode = parseInt(document.getElementById('updateVersionCode').value || '0');
+  if (!versionCode) { showToast('Version code is required'); return; }
+  await db.collection('config').doc('app_version').set({
+    latestVersionCode: versionCode,
+    latestVersionName: document.getElementById('updateVersionName').value,
+    apkUrl: document.getElementById('updateApkUrl').value,
+    releaseNotes: document.getElementById('updateNotes').value,
+    forceUpdate: document.getElementById('updateForce').checked,
+  }, { merge: true });
+  showToast('Update info published');
+}
+
+// ---------------------------------------------------------------------
+// Landing page (download.html) config — stored at config/landingPage.
+// Screenshots and logo upload through the same ImgBB flow used for
+// payment QR codes elsewhere in this panel.
+// ---------------------------------------------------------------------
+
+let landingScreenshots = []; // array of image URLs, in display order
+
+async function loadLandingConfig() {
+  const snap = await db.collection('config').doc('landingPage').get();
+  if (!snap.exists) { renderLandingScreenshots(); return; }
+  const c = snap.data();
+  document.getElementById('landingBrandName').value = c.brandName || '';
+  document.getElementById('landingTagline').value = c.tagline || '';
+  document.getElementById('landingKeywords').value = c.keywords || '';
+  document.getElementById('landingApkUrl').value = c.apkUrl || '';
+  document.getElementById('landingFileSize').value = c.fileSizeLabel || '';
+  landingScreenshots = Array.isArray(c.screenshots) ? c.screenshots : [];
+
+  if (c.logoUrl) {
+    const preview = document.getElementById('landingLogoPreview');
+    preview.src = c.logoUrl;
+    preview.style.display = 'block';
+  }
+  renderLandingScreenshots();
+}
+
+function renderLandingScreenshots() {
+  const list = document.getElementById('landingScreenshotsList');
+  if (landingScreenshots.length === 0) {
+    list.innerHTML = '<div class="empty" style="font-size:11px;">No screenshots yet</div>';
+    return;
+  }
+  list.innerHTML = landingScreenshots.map((url, i) => `
+    <div style="position:relative;">
+      <img src="${url}" style="width:70px; height:140px; object-fit:cover; border-radius:8px; border:1px solid var(--line);" onclick="openImgZoom('${url}')" />
+      <button onclick="removeLandingScreenshot(${i})" style="position:absolute; top:-6px; right:-6px; width:20px; height:20px; border-radius:50%; background:var(--red); color:#fff; border:none; font-size:12px; line-height:1; cursor:pointer;">×</button>
+    </div>
+  `).join('');
+}
+
+function removeLandingScreenshot(index) {
+  landingScreenshots.splice(index, 1);
+  renderLandingScreenshots();
+  showToast('Removed — click "Save Landing Page Settings" to make it permanent');
+}
+
+/**
+ * Uploads whichever file is selected (logo or screenshot) to ImgBB, then
+ * either sets the single logo preview or appends to the screenshots array.
+ * Nothing is written to Firestore here — that only happens when the admin
+ * clicks "Save Landing Page Settings", so a bad upload can be discarded
+ * without touching the live page.
+ */
+async function uploadLandingImage(kind) {
+  const fileInputId = kind === 'logo' ? 'landingLogoFileInput' : 'landingScreenshotInput';
+  const fileInput = document.getElementById(fileInputId);
+  if (!fileInput.files[0]) { showToast('Select an image first'); return; }
+  const file = fileInput.files[0];
+  const reader = new FileReader();
+  reader.onload = async () => {
+    const base64 = reader.result.split(',')[1];
+    const formData = new FormData();
+    formData.append('key', IMGBB_API_KEY);
+    formData.append('image', base64);
+    try {
+      const res = await fetch('https://api.imgbb.com/1/upload', { method: 'POST', body: formData });
+      const data = await res.json();
+      if (!data.success) { showToast('Upload failed'); return; }
+
+      if (kind === 'logo') {
+        const preview = document.getElementById('landingLogoPreview');
+        preview.src = data.data.url;
+        preview.style.display = 'block';
+        showToast('Logo uploaded — click "Save Landing Page Settings" to publish');
+      } else {
+        landingScreenshots.push(data.data.url);
+        renderLandingScreenshots();
+        showToast('Screenshot added — click "Save Landing Page Settings" to publish');
+      }
+      fileInput.value = '';
+    } catch (e) {
+      showToast('Upload error: ' + e.message);
+    }
+  };
+  reader.readAsDataURL(file);
+}
+
+async function saveLandingConfig() {
+  const logoUrl = document.getElementById('landingLogoPreview').src || '';
+  await db.collection('config').doc('landingPage').set({
+    brandName: document.getElementById('landingBrandName').value,
+    tagline: document.getElementById('landingTagline').value,
+    keywords: document.getElementById('landingKeywords').value,
+    apkUrl: document.getElementById('landingApkUrl').value,
+    fileSizeLabel: document.getElementById('landingFileSize').value,
+    logoUrl: document.getElementById('landingLogoPreview').style.display !== 'none' ? logoUrl : '',
+    screenshots: landingScreenshots,
+    updatedAt: Date.now(),
+  }, { merge: true });
+  showToast('Landing page settings saved — download.html updates immediately');
+}
+</script>
+</body>
+</html>
