@@ -3,4 +3,3 @@ Allow: /
 Disallow: /admin.html
 
 Sitemap: https://mitrademaster.vercel.app/sitemap.xml
-Sitemap: https://mitrademaster.vercel.app/image-sitemap.xml
