@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="description" id="metaDescription" content="MI Trade Master — learn trading with structured courses, an AI chart analyzer, and risk-free practice. Free download, Urdu &amp; English." />
+<meta name="keywords" id="metaKeywords" content="trade master, trading master, MI trade master, trading app, forex education, candlestick patterns, urdu trading course, chart analyzer, learn trading pakistan, trading learning app" />
+<meta name="robots" content="index, follow" />
+<meta name="author" content="MI Traders" />
+<link rel="canonical" href="https://mitrademaster.vercel.app/" />
+<link rel="icon" type="image/png" href="https://i.ibb.co/Ng388c8Z/de7fe19c8fdb.png" />
+<link rel="apple-touch-icon" href="https://i.ibb.co/Ng388c8Z/de7fe19c8fdb.png" />
+<link rel="sitemap" type="application/xml" href="/sitemap.xml" />
+<link rel="sitemap" type="application/xml" href="/image-sitemap.xml" />
+<meta property="og:title" id="ogTitle" content="MI Trade Master — Download the App" />
+<meta property="og:description" id="ogDescription" content="Structured courses, an AI chart analyzer, and risk-free practice mode — everything you need to actually understand trading." />
+<meta property="og:image" id="ogImage" content="https://i.ibb.co/Ng388c8Z/de7fe19c8fdb.png" />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://mitrademaster.vercel.app/" />
+<meta property="og:site_name" content="MI Trade Master" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="MI Trade Master — Download the App" />
+<meta name="twitter:description" content="Structured courses, an AI chart analyzer, and risk-free practice mode for learning trading." />
+<meta name="twitter:image" content="https://i.ibb.co/Ng388c8Z/de7fe19c8fdb.png" />
+<title>MI Trade Master — Trading Master App | Learn Trading Free</title>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "MobileApplication",
+  "name": "MI Trade Master",
+  "alternateName": "Trade Master",
+  "operatingSystem": "ANDROID",
+  "applicationCategory": "FinanceApplication",
+  "description": "MI Trade Master is a trading education app with structured courses, an AI chart analyzer, and risk-free practice mode to help you learn trading the right way.",
+  "url": "https://mitrademaster.vercel.app/",
+  "image": "https://i.ibb.co/Ng388c8Z/de7fe19c8fdb.png",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD"
+  },
+  "aggregateRating": {
+    "@type": "AggregateRating",
+    "ratingValue": "4.8",
+    "ratingCount": "120"
+  }
+}
+</script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<style>
+  :root{
+    --bg-0:#05070a;
+    --bg-1:#0a0f16;
+    --panel:#0e141c;
+    --panel-2:#131b25;
+    --line:rgba(255,255,255,0.08);
+    --gold:#e3b934;
+    --gold-dim:#a9862a;
+    --green:#22c55e;
+    --green-dim:#16a34a;
+    --red:#ef4444;
+    --silver:#e7ecf2;
+    --silver-dim:#8a97a8;
+    --paper:#f3e9d2;
+    --paper-2:#e9dbb8;
+  }
+  *{box-sizing:border-box;}
+  html,body{
+    margin:0; padding:0; background:var(--bg-0); color:var(--silver);
+    font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,Roboto,Arial,sans-serif;
+    overflow-x:hidden;
+    scroll-behavior:smooth;
+  }
+  body::before{
+    content:''; position:fixed; inset:0; z-index:0; pointer-events:none;
+    background:
+      radial-gradient(ellipse 900px 500px at 20% -10%, rgba(227,185,52,0.10), transparent 60%),
+      radial-gradient(ellipse 900px 600px at 90% 10%, rgba(34,197,94,0.08), transparent 60%),
+      radial-gradient(ellipse 700px 500px at 50% 100%, rgba(34,197,94,0.06), transparent 60%);
+  }
+
+  /* ---------- floating candle particles across whole page ---------- */
+  .particle-field{position:fixed; inset:0; z-index:0; pointer-events:none; overflow:hidden;}
+  .particle{
+    position:absolute; bottom:-60px; opacity:0;
+    animation:rise linear infinite;
+  }
+  .particle .wick{width:2px; height:14px; background:var(--silver-dim); margin:0 auto; opacity:0.35;}
+  .particle .body{width:8px; height:20px; border-radius:2px; opacity:0.35;}
+  .particle.up .body{background:var(--green);}
+  .particle.down .body{background:var(--red);}
+  @keyframes rise{
+    0%{ transform:translateY(0) rotate(0deg); opacity:0; }
+    10%{ opacity:0.6; }
+    90%{ opacity:0.4; }
+    100%{ transform:translateY(-115vh) rotate(8deg); opacity:0; }
+  }
+
+  .wrap{position:relative; z-index:1; max-width:1180px; margin:0 auto; padding:0 24px;}
+
+  /* ================= NAV ================= */
+  nav{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:20px 24px; max-width:1180px; margin:0 auto; position:relative; z-index:5;
+  }
+  .brand{display:flex; align-items:center; gap:12px;}
+  .brand img{width:40px; height:40px; border-radius:11px; object-fit:cover; box-shadow:0 4px 18px rgba(227,185,52,0.25);}
+  .brand-fallback{
+    width:40px;height:40px;border-radius:11px;
+    background:linear-gradient(135deg, var(--gold), var(--green));
+    display:flex;align-items:center;justify-content:center;font-weight:900;color:#04120b;font-size:16px;
+  }
+  .brand-name{font-weight:800; font-size:17px; letter-spacing:0.2px; color:#fff;}
+  .brand-name span{color:var(--gold);}
+  .nav-cta{
+    background:linear-gradient(135deg, var(--green), var(--green-dim));
+    color:#04120b; font-weight:700; font-size:13.5px; padding:10px 20px; border-radius:30px;
+    text-decoration:none; box-shadow:0 6px 20px rgba(34,197,94,0.25);
+    transition:transform .2s ease, box-shadow .2s ease;
+  }
+  .nav-cta:hover{transform:translateY(-2px); box-shadow:0 10px 26px rgba(34,197,94,0.35);}
+
+  /* ================= HERO ================= */
+  .hero{
+    display:grid; grid-template-columns:1.05fr 0.95fr; gap:40px; align-items:center;
+    padding:56px 0 40px; position:relative; z-index:2;
+  }
+  @media (max-width:920px){ .hero{grid-template-columns:1fr; text-align:center;} }
+
+  .eyebrow{
+    display:inline-flex; align-items:center; gap:8px;
+    background:rgba(227,185,52,0.1); border:1px solid rgba(227,185,52,0.25);
+    color:var(--gold); font-size:12px; font-weight:700; letter-spacing:0.4px;
+    padding:7px 14px; border-radius:30px; margin-bottom:22px;
+  }
+  .eyebrow .dot{width:6px;height:6px;border-radius:50%;background:var(--gold); animation:pulse 1.8s ease-in-out infinite;}
+  @keyframes pulse{0%,100%{opacity:1; transform:scale(1);} 50%{opacity:0.4; transform:scale(0.7);}}
+
+  h1{
+    font-size:clamp(32px,5vw,52px); line-height:1.12; font-weight:900; margin:0 0 18px;
+    color:#fff; letter-spacing:-1px;
+  }
+  h1 .accent{
+    background:linear-gradient(120deg, var(--gold), #f6d365 50%, var(--green));
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+  }
+  .hero p.lead{
+    font-size:16.5px; line-height:1.7; color:var(--silver-dim); max-width:520px; margin:0 0 30px;
+  }
+  @media (max-width:920px){ .hero p.lead{margin-left:auto; margin-right:auto;} }
+
+  .cta-row{display:flex; gap:14px; flex-wrap:wrap; margin-bottom:28px;}
+  @media (max-width:920px){ .cta-row{justify-content:center;} }
+
+  .btn-primary{
+    display:inline-flex; align-items:center; gap:10px;
+    background:linear-gradient(135deg, var(--green), var(--green-dim));
+    color:#04120b; font-weight:800; font-size:15px; padding:16px 30px; border-radius:16px;
+    text-decoration:none; box-shadow:0 10px 30px rgba(34,197,94,0.3);
+    transition:transform .25s ease, box-shadow .25s ease;
+    position:relative; overflow:hidden;
+  }
+  .btn-primary::after{
+    content:''; position:absolute; inset:0;
+    background:linear-gradient(120deg, transparent, rgba(255,255,255,0.35), transparent);
+    transform:translateX(-120%); transition:transform .6s ease;
+  }
+  .btn-primary:hover::after{transform:translateX(120%);}
+  .btn-primary:hover{transform:translateY(-3px); box-shadow:0 16px 40px rgba(34,197,94,0.4);}
+  .btn-primary svg{width:22px;height:22px;}
+  .btn-primary .sub{display:block; font-size:10.5px; font-weight:600; opacity:0.75; margin-top:1px;}
+
+  .btn-secondary{
+    display:inline-flex; align-items:center; gap:8px;
+    background:var(--panel); border:1px solid var(--line); color:var(--silver);
+    font-weight:700; font-size:14px; padding:15px 24px; border-radius:16px; text-decoration:none;
+    transition:border-color .2s ease, transform .2s ease;
+  }
+  .btn-secondary:hover{border-color:var(--gold-dim); transform:translateY(-2px);}
+
+  .trust-row{display:flex; gap:22px; flex-wrap:wrap; color:var(--silver-dim); font-size:12.5px;}
+  @media (max-width:920px){ .trust-row{justify-content:center;} }
+  .trust-row span{display:flex; align-items:center; gap:6px;}
+  .trust-row svg{width:15px;height:15px; color:var(--green);}
+
+  /* ================= 3D BOOK SCENE ================= */
+  .book-stage{
+    position:relative; height:440px; display:flex; align-items:center; justify-content:center;
+    perspective:1400px;
+  }
+  .book{
+    position:relative; width:260px; height:340px;
+    transform-style:preserve-3d;
+    animation:bookFloat 5s ease-in-out infinite;
+  }
+  @keyframes bookFloat{
+    0%,100%{ transform:rotateX(8deg) rotateY(-18deg) translateY(0); }
+    50%{ transform:rotateX(8deg) rotateY(-18deg) translateY(-14px); }
+  }
+  .book-cover, .book-back, .book-spine{
+    position:absolute; inset:0; border-radius:6px 10px 10px 6px;
+  }
+  .book-back{
+    background:linear-gradient(135deg, #16324a, #0c1c2b);
+    transform:translateZ(-18px);
+    box-shadow:0 40px 80px rgba(0,0,0,0.6);
+  }
+  .book-spine{
+    width:20px; left:-10px; height:100%;
+    background:linear-gradient(90deg, #0a1a28, #1b3a52);
+    transform:rotateY(90deg) translateZ(10px);
+    border-radius:6px 0 0 6px;
+  }
+  .book-cover{
+    background:
+      radial-gradient(circle at 30% 20%, rgba(227,185,52,0.25), transparent 55%),
+      linear-gradient(135deg, #123049 0%, #0c2036 55%, #081524 100%);
+    border:1px solid rgba(227,185,52,0.35);
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    box-shadow:0 30px 70px rgba(0,0,0,0.55), inset 0 0 40px rgba(227,185,52,0.06);
+    transform:translateZ(2px);
+  }
+  .book-cover .ring{
+    width:74px; height:74px; border-radius:50%;
+    border:2px solid var(--gold); display:flex; align-items:center; justify-content:center;
+    margin-bottom:16px; box-shadow:0 0 30px rgba(227,185,52,0.35);
+  }
+  .book-cover .ring svg{width:36px; height:36px; color:var(--gold);}
+  .book-cover .title-ar{font-size:22px; color:var(--gold); font-weight:700; margin-bottom:6px;}
+  .book-cover .title-en{font-size:12.5px; letter-spacing:2px; color:rgba(231,236,242,0.75); text-transform:uppercase;}
+  .book-cover .rule{width:70px; height:1px; background:rgba(227,185,52,0.4); margin:14px 0;}
+
+  /* pages fanning out + glowing knowledge motes escaping the book */
+  .page-fan{position:absolute; inset:0; transform-style:preserve-3d; pointer-events:none;}
+  .fan-page{
+    position:absolute; top:6%; left:6%; width:88%; height:88%;
+    background:linear-gradient(160deg, var(--paper), var(--paper-2));
+    border-radius:4px 8px 8px 4px;
+    transform-origin:left center;
+    box-shadow:0 10px 30px rgba(0,0,0,0.4);
+    opacity:0.96;
+  }
+  .fan-page:nth-child(1){ animation:fan1 5s ease-in-out infinite; z-index:1;}
+  .fan-page:nth-child(2){ animation:fan2 5s ease-in-out infinite; z-index:2;}
+  .fan-page:nth-child(3){ animation:fan3 5s ease-in-out infinite; z-index:3;}
+  @keyframes fan1{
+    0%,20%{transform:rotateY(0deg) translateZ(3px);}
+    50%{transform:rotateY(-46deg) translateZ(6px);}
+    80%,100%{transform:rotateY(0deg) translateZ(3px);}
+  }
+  @keyframes fan2{
+    0%,20%{transform:rotateY(0deg) translateZ(2px);}
+    50%{transform:rotateY(-30deg) translateZ(4px);}
+    80%,100%{transform:rotateY(0deg) translateZ(2px);}
+  }
+  @keyframes fan3{
+    0%,20%{transform:rotateY(0deg) translateZ(1px);}
+    50%{transform:rotateY(-16deg) translateZ(2px);}
+    80%,100%{transform:rotateY(0deg) translateZ(1px);}
+  }
+  .fan-page .chart-line{position:absolute; left:14%; top:38%; width:72%; height:34%;}
+  .fan-page .glyph{position:absolute; color:#7a5a1e; font-weight:700; opacity:0.55;}
+  .fan-page .glyph.g1{top:14%; left:14%; font-size:13px;}
+  .fan-page .glyph.g2{top:14%; right:12%; font-size:11px;}
+  .fan-page .glyph.g3{bottom:10%; left:14%; font-size:10px;}
+
+  .knowledge-mote{
+    position:absolute; font-size:15px; color:var(--gold); opacity:0;
+    text-shadow:0 0 12px rgba(227,185,52,0.8);
+    animation:moteFloat 5s ease-in-out infinite;
+  }
+  .knowledge-mote.m1{ top:30%; left:60%; animation-delay:0.2s;}
+  .knowledge-mote.m2{ top:50%; left:68%; animation-delay:0.9s;}
+  .knowledge-mote.m3{ top:20%; left:52%; animation-delay:1.6s;}
+  .knowledge-mote.m4{ top:60%; left:56%; animation-delay:2.3s; font-size:12px;}
+  @keyframes moteFloat{
+    0%,15%{opacity:0; transform:translate(0,0) scale(0.6);}
+    35%{opacity:1; transform:translate(30px,-24px) scale(1);}
+    70%{opacity:0.8; transform:translate(70px,-58px) scale(1.05);}
+    100%{opacity:0; transform:translate(110px,-95px) scale(0.9);}
+  }
+
+  .glow-ground{
+    position:absolute; bottom:6%; width:220px; height:36px; left:50%; transform:translateX(-50%);
+    background:radial-gradient(ellipse, rgba(227,185,52,0.28), transparent 70%);
+    filter:blur(6px);
+  }
+
+  /* ================= SECTION HEADERS ================= */
+  .section{padding:70px 0; position:relative; z-index:1;}
+  .section-head{text-align:center; max-width:640px; margin:0 auto 46px;}
+  .section-head .tag{
+    color:var(--gold); font-weight:700; font-size:12.5px; letter-spacing:1.5px; text-transform:uppercase; margin-bottom:12px; display:block;
+  }
+  .section-head h2{font-size:clamp(24px,3.4vw,34px); color:#fff; font-weight:800; margin:0 0 12px; letter-spacing:-0.5px;}
+  .section-head p{color:var(--silver-dim); font-size:15px; line-height:1.7;}
+
+  /* ================= FEATURE GRID ================= */
+  .feature-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:20px;}
+  @media (max-width:920px){ .feature-grid{grid-template-columns:repeat(2,1fr);} }
+  @media (max-width:620px){ .feature-grid{grid-template-columns:1fr;} }
+  .feature-card{
+    background:linear-gradient(160deg, var(--panel), var(--panel-2));
+    border:1px solid var(--line); border-radius:20px; padding:26px 22px;
+    transition:transform .3s ease, border-color .3s ease, box-shadow .3s ease;
+  }
+  .feature-card:hover{transform:translateY(-6px); border-color:rgba(227,185,52,0.3); box-shadow:0 20px 40px rgba(0,0,0,0.35);}
+  .feature-icon{
+    width:48px; height:48px; border-radius:14px; display:flex; align-items:center; justify-content:center;
+    margin-bottom:16px;
+  }
+  .feature-icon svg{width:24px; height:24px;}
+  .feature-card h3{font-size:16px; color:#fff; margin:0 0 8px; font-weight:700;}
+  .feature-card p{font-size:13.5px; color:var(--silver-dim); line-height:1.65; margin:0;}
+
+  /* ================= STEPS ================= */
+  .steps{display:grid; grid-template-columns:repeat(4,1fr); gap:18px; counter-reset:stepnum;}
+  @media (max-width:920px){ .steps{grid-template-columns:repeat(2,1fr);} }
+  @media (max-width:560px){ .steps{grid-template-columns:1fr;} }
+  .step-card{
+    position:relative; background:var(--panel); border:1px solid var(--line); border-radius:18px;
+    padding:26px 20px 22px; counter-increment:stepnum;
+  }
+  .step-card .num{
+    width:34px; height:34px; border-radius:10px; background:linear-gradient(135deg, var(--gold), var(--gold-dim));
+    color:#241a04; font-weight:900; font-size:15px; display:flex; align-items:center; justify-content:center;
+    margin-bottom:14px;
+  }
+  .step-card h4{font-size:14.5px; color:#fff; margin:0 0 6px; font-weight:700;}
+  .step-card p{font-size:12.5px; color:var(--silver-dim); line-height:1.6; margin:0;}
+  .step-arrow{display:none;}
+  @media (min-width:921px){
+    .step-card:not(:last-child)::after{
+      content:'→'; position:absolute; right:-22px; top:38px; color:var(--gold-dim); font-size:18px;
+    }
+  }
+
+  /* ================= PROMO / VALUES BANNER (ilm + sadaqah) ================= */
+  .promo-banner{
+    background:linear-gradient(135deg, rgba(227,185,52,0.08), rgba(34,197,94,0.06));
+    border:1px solid rgba(227,185,52,0.2); border-radius:24px; padding:44px 36px;
+    display:grid; grid-template-columns:auto 1fr; gap:28px; align-items:center;
+  }
+  @media (max-width:720px){ .promo-banner{grid-template-columns:1fr; text-align:center;} }
+  .promo-banner .icon-badge{
+    width:76px; height:76px; border-radius:22px; background:rgba(227,185,52,0.14);
+    display:flex; align-items:center; justify-content:center; flex-shrink:0; margin:0 auto;
+  }
+  .promo-banner .icon-badge svg{width:38px; height:38px; color:var(--gold);}
+  .promo-banner h3{font-size:19px; color:#fff; margin:0 0 8px; font-weight:800;}
+  .promo-banner p{font-size:13.5px; color:var(--silver-dim); line-height:1.75; margin:0;}
+  .promo-banner .ar{color:var(--gold); font-weight:700; font-size:15px;}
+
+  /* ================= SCREENSHOT STRIP ================= */
+  .phone-strip{display:flex; gap:20px; overflow-x:auto; padding:10px 4px 20px; scrollbar-width:none;}
+  .phone-strip::-webkit-scrollbar{display:none;}
+  .phone-mock{
+    flex:0 0 auto; width:190px; height:390px; border-radius:28px; padding:8px;
+    background:#000; border:2px solid #1c2733; box-shadow:0 20px 50px rgba(0,0,0,0.5);
+  }
+  .phone-mock .screen{
+    width:100%; height:100%; border-radius:20px; overflow:hidden; position:relative;
+    background:linear-gradient(160deg,#0b1420,#060a10);
+  }
+  .phone-mock .screen .bar{height:8%; background:rgba(255,255,255,0.03); display:flex; align-items:center; padding:0 10px;}
+  .phone-mock .screen .bar .b1{width:40%; height:6px; background:rgba(255,255,255,0.15); border-radius:3px;}
+  .phone-mock .screen .content{padding:12px;}
+  .phone-mock .mini-card{background:rgba(255,255,255,0.04); border-radius:10px; padding:10px; margin-bottom:8px;}
+  .phone-mock .mini-line{height:6px; border-radius:3px; background:rgba(255,255,255,0.1); margin-bottom:6px;}
+  .phone-mock .mini-line.g{background:var(--green); width:60%;}
+  .phone-mock .mini-line.gold{background:var(--gold); width:40%;}
+  .phone-mock .candle-row{display:flex; align-items:flex-end; gap:4px; height:70px; margin:10px 0;}
+  .phone-mock .candle{width:6px; border-radius:2px;}
+  .phone-mock .candle.up{background:var(--green);}
+  .phone-mock .candle.down{background:var(--red);}
+  .phone-mock img.real-shot{width:100%; height:100%; object-fit:cover; display:block;}
+
+  /* ================= FINAL CTA ================= */
+  .final-cta{
+    text-align:center; padding:70px 24px; border-radius:32px;
+    background:
+      radial-gradient(ellipse 600px 300px at 50% 0%, rgba(34,197,94,0.14), transparent 70%),
+      linear-gradient(160deg, var(--panel), var(--bg-1));
+    border:1px solid var(--line); margin:0 auto 60px; max-width:900px;
+  }
+  .final-cta h2{font-size:clamp(24px,4vw,36px); color:#fff; margin:0 0 14px; font-weight:900;}
+  .final-cta p{color:var(--silver-dim); font-size:15px; margin:0 0 30px;}
+
+  /* ================= FOOTER ================= */
+  footer{
+    border-top:1px solid var(--line); padding:34px 24px; text-align:center;
+    color:var(--silver-dim); font-size:12.5px; position:relative; z-index:1;
+  }
+  footer .fbrand{color:var(--gold); font-weight:700;}
+  footer a{color:var(--silver-dim); text-decoration:none;}
+  footer a:hover{color:var(--gold);}
+
+  /* ================= DOWNLOAD MODAL ================= */
+  .modal-overlay{
+    position:fixed; inset:0; background:rgba(3,5,8,0.86); backdrop-filter:blur(6px);
+    display:none; align-items:center; justify-content:center; z-index:100; padding:20px;
+  }
+  .modal-overlay.show{display:flex;}
+  .modal-card{
+    background:linear-gradient(165deg, var(--panel), var(--panel-2)); border:1px solid var(--line);
+    border-radius:24px; padding:34px 30px; max-width:380px; width:100%; text-align:center;
+    box-shadow:0 30px 80px rgba(0,0,0,0.6);
+  }
+  .modal-ring{
+    width:64px; height:64px; margin:0 auto 18px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center; position:relative;
+  }
+  .modal-ring svg{width:32px;height:32px; color:var(--green);}
+  .modal-ring::before{
+    content:''; position:absolute; inset:0; border-radius:50%;
+    border:3px solid rgba(34,197,94,0.25); border-top-color:var(--green);
+    animation:spin 1s linear infinite;
+  }
+  @keyframes spin{to{transform:rotate(360deg);}}
+  .modal-card h3{color:#fff; font-size:17px; margin:0 0 8px; font-weight:800;}
+  .modal-card p{color:var(--silver-dim); font-size:13px; margin:0 0 20px; line-height:1.6;}
+  .modal-progress{height:6px; background:var(--line); border-radius:4px; overflow:hidden; margin-bottom:16px;}
+  .modal-progress .fill{height:100%; width:0%; background:linear-gradient(90deg, var(--gold), var(--green)); transition:width .3s ease;}
+  .modal-close{
+    background:transparent; border:1px solid var(--line); color:var(--silver-dim);
+    padding:10px 20px; border-radius:12px; font-size:13px; cursor:pointer;
+  }
+  .modal-note{font-size:11px; color:var(--silver-dim); margin-top:14px; line-height:1.6;}
+
+  a, button{cursor:pointer;}
+</style>
+</head>
+<body>
+
+  <div class="particle-field" id="particleField"></div>
+
+  <nav>
+    <div class="brand">
+      <img id="navLogo" src="" alt="" style="display:none;" onerror="this.style.display='none'; document.getElementById('navLogoFallback').style.display='flex';" />
+      <div class="brand-fallback" id="navLogoFallback">M</div>
+      <div class="brand-name" id="navBrandName">MI Trade<span> Master</span></div>
+    </div>
+    <a href="#download" class="nav-cta" id="navCta">Download App</a>
+  </nav>
+
+  <div class="wrap">
+    <section class="hero">
+      <div class="hero-copy">
+        <div class="eyebrow"><span class="dot"></span> FREE • EDUCATIONAL • URDU + ENGLISH</div>
+        <h1>Learn Trading Like <span class="accent">Real Knowledge</span>, Not Guesswork</h1>
+        <p class="lead" id="heroLead">
+          Structured courses, an AI chart analyzer, risk-free practice mode, and a live support assistant —
+          everything you need to actually understand trading, in one app.
+        </p>
+        <div class="cta-row">
+          <a href="#" class="btn-primary" id="mainDownloadBtn" onclick="startDownload(event)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v13m0 0l-5-5m5 5l5-5M5 21h14"/></svg>
+            <span>Download for Android<span class="sub" id="fileSizeLabel">Free • APK direct download</span></span>
+          </a>
+          <a href="#features" class="btn-secondary">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M9 18l6-6-6-6"/></svg>
+            See what's inside
+          </a>
+        </div>
+        <div class="trust-row">
+          <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg> No ads</span>
+          <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg> Urdu &amp; English</span>
+          <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg> Beginner to Pro</span>
+        </div>
+      </div>
+
+      <div class="book-stage">
+        <div class="glow-ground"></div>
+        <div class="book">
+          <div class="book-back"></div>
+          <div class="book-spine"></div>
+          <div class="page-fan">
+            <div class="fan-page">
+              <span class="glyph g1">علم</span>
+              <span class="glyph g2">EMA</span>
+              <span class="glyph g3">RSI</span>
+            </div>
+            <div class="fan-page">
+              <span class="glyph g1">صدقہ</span>
+              <span class="glyph g2">MACD</span>
+            </div>
+            <div class="fan-page">
+              <span class="glyph g1">ثواب</span>
+            </div>
+          </div>
+          <div class="book-cover">
+            <div class="ring">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>
+            </div>
+            <div class="title-ar">علم و تجارت</div>
+            <div class="rule"></div>
+            <div class="title-en">MI Trade Master</div>
+          </div>
+          <div class="knowledge-mote m1">✦</div>
+          <div class="knowledge-mote m2">علم</div>
+          <div class="knowledge-mote m3">✧</div>
+          <div class="knowledge-mote m4">$</div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- ================= FEATURES ================= -->
+  <div class="wrap" id="features">
+    <section class="section">
+      <div class="section-head">
+        <span class="tag">What You Get</span>
+        <h2>Everything in One App</h2>
+        <p>Built for students who want real understanding — not shortcuts, not signals, not gambling.</p>
+      </div>
+      <div class="feature-grid">
+
+        <div class="feature-card">
+          <div class="feature-icon" style="background:rgba(34,197,94,0.12);">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+          </div>
+          <h3>AI Chart Analyzer</h3>
+          <p>Upload any chart screenshot and get an instant educational breakdown — trend strength, candlestick patterns, and a plain-language explanation.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon" style="background:rgba(227,185,52,0.12);">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#e3b934" stroke-width="2"><path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s4.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+          </div>
+          <h3>Structured Courses</h3>
+          <p>Beginner to pro, lesson by lesson. Finish a course, pass its quiz, and the next one unlocks — real progression, not a random video dump.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon" style="background:rgba(233,25,44,0.1);">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#e9192c" stroke-width="2"><path d="M3 3v18h18"/><path d="M18.7 8l-5.1 5.1-2.8-2.8L7 14"/></svg>
+          </div>
+          <h3>Risk-Free Practice</h3>
+          <p>Trade simulated candles with virtual balance. Build confidence and test your understanding before any real money is involved.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon" style="background:rgba(79,209,197,0.12);">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#4fd1c5" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/></svg>
+          </div>
+          <h3>AI Support Assistant</h3>
+          <p>Stuck on a concept at 2am? Ask the in-app assistant anything about trading, your subscription, or a chart — in Urdu or English.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon" style="background:rgba(227,185,52,0.12);">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#e3b934" stroke-width="2"><path d="M12 2l2.4 6.6L21 11l-6.6 2.4L12 20l-2.4-6.6L3 11l6.6-2.4z"/></svg>
+          </div>
+          <h3>Spiritual Corner</h3>
+          <p>Islamic guidance and reminders woven into the learning journey — knowledge and character, side by side.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon" style="background:rgba(34,197,94,0.12);">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+          </div>
+          <h3>Local Payment Support</h3>
+          <p>Subscribe easily with JazzCash or EasyPaisa — pick your method, scan the QR, done.</p>
+        </div>
+
+      </div>
+    </section>
+  </div>
+
+  <!-- ================= HOW IT WORKS ================= -->
+  <div class="wrap">
+    <section class="section">
+      <div class="section-head">
+        <span class="tag">Getting Started</span>
+        <h2>Four Steps to Your First Lesson</h2>
+      </div>
+      <div class="steps">
+        <div class="step-card"><div class="num">1</div><h4>Download &amp; Install</h4><p>Tap the button above, allow the install, open the app.</p></div>
+        <div class="step-card"><div class="num">2</div><h4>Create Your Profile</h4><p>Quick sign-up with phone or email — takes under a minute.</p></div>
+        <div class="step-card"><div class="num">3</div><h4>Activate Subscription</h4><p>Pay via JazzCash/EasyPaisa and upload your receipt screenshot.</p></div>
+        <div class="step-card"><div class="num">4</div><h4>Start Learning</h4><p>Begin Course 1, use the analyzer, and practice risk-free.</p></div>
+      </div>
+    </section>
+  </div>
+
+  <!-- ================= VALUES BANNER ================= -->
+  <div class="wrap">
+    <section class="section" style="padding-top:0;">
+      <div class="promo-banner">
+        <div class="icon-badge">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#e3b934" stroke-width="1.8"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>
+        </div>
+        <div>
+          <h3>Knowledge Worth Sharing</h3>
+          <p>
+            <span class="ar">"طَلَبُ الْعِلْمِ فَرِيضَةٌ عَلَىٰ كُلِّ مُسْلِمٍ"</span> — seeking knowledge is an obligation upon every Muslim.
+            This app was built as a form of <em>sadaqah jariyah</em> — knowledge that keeps benefiting people long after
+            it's shared. Learn honestly, trade responsibly, and pass the knowledge on.
+          </p>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- ================= SCREENSHOTS ================= -->
+  <div class="wrap">
+    <section class="section">
+      <div class="section-head">
+        <span class="tag">A Look Inside</span>
+        <h2>Clean, Focused, Distraction-Free</h2>
+      </div>
+      <div class="phone-strip" id="phoneStrip">
+        <div class="phone-mock"><div class="screen">
+          <div class="bar"><div class="b1"></div></div>
+          <div class="content">
+            <div class="mini-card"><div class="mini-line" style="width:80%"></div><div class="mini-line g"></div></div>
+            <div class="candle-row">
+              <div class="candle up" style="height:30px"></div><div class="candle down" style="height:50px"></div>
+              <div class="candle up" style="height:20px"></div><div class="candle up" style="height:60px"></div>
+              <div class="candle down" style="height:35px"></div><div class="candle up" style="height:45px"></div>
+              <div class="candle up" style="height:25px"></div><div class="candle down" style="height:55px"></div>
+            </div>
+            <div class="mini-card"><div class="mini-line" style="width:60%"></div><div class="mini-line gold" style="width:30%"></div></div>
+          </div>
+        </div></div>
+        <div class="phone-mock"><div class="screen">
+          <div class="bar"><div class="b1"></div></div>
+          <div class="content">
+            <div class="mini-card"><div class="mini-line" style="width:70%"></div><div class="mini-line" style="width:90%"></div><div class="mini-line g" style="width:50%"></div></div>
+            <div class="mini-card"><div class="mini-line" style="width:85%"></div><div class="mini-line" style="width:60%"></div></div>
+            <div class="mini-card"><div class="mini-line gold" style="width:40%"></div><div class="mini-line" style="width:75%"></div></div>
+          </div>
+        </div></div>
+        <div class="phone-mock"><div class="screen">
+          <div class="bar"><div class="b1"></div></div>
+          <div class="content">
+            <div class="candle-row">
+              <div class="candle down" style="height:40px"></div><div class="candle up" style="height:65px"></div>
+              <div class="candle up" style="height:30px"></div><div class="candle down" style="height:48px"></div>
+              <div class="candle up" style="height:55px"></div><div class="candle down" style="height:22px"></div>
+              <div class="candle up" style="height:60px"></div><div class="candle up" style="height:38px"></div>
+            </div>
+            <div class="mini-card"><div class="mini-line g" style="width:65%"></div><div class="mini-line" style="width:45%"></div></div>
+          </div>
+        </div></div>
+      </div>
+    </section>
+  </div>
+
+  <!-- ================= FINAL CTA ================= -->
+  <div class="wrap" id="download">
+    <div class="final-cta">
+      <h2>Ready to Learn Trading the Right Way?</h2>
+      <p>Free to download. Structured to actually teach you something.</p>
+      <a href="#" class="btn-primary" onclick="startDownload(event)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v13m0 0l-5-5m5 5l5-5M5 21h14"/></svg>
+        <span>Download for Android<span class="sub">Free • APK direct download</span></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="wrap" style="padding:20px 24px 10px; position:relative; z-index:1;">
+    <div style="display:flex; gap:18px; flex-wrap:wrap; justify-content:center; font-size:13px;">
+      <a href="/articles/candlestick-patterns-guide.html" style="color:var(--silver-dim); text-decoration:none;">Candlestick Patterns Guide</a>
+      <a href="/articles/risk-management-trading.html" style="color:var(--silver-dim); text-decoration:none;">Risk Management in Trading</a>
+      <a href="/articles/mi-trade-master-features.html" style="color:var(--silver-dim); text-decoration:none;">App Features Overview</a>
+    </div>
+  </div>
+
+  <footer>
+    <div><span class="fbrand" id="footerBrand">MI Trade Master</span> — Educational chart analysis. Not financial advice.</div>
+    <div style="margin-top:8px;">© <span id="year"></span> MI Traders. All rights reserved.</div>
+  </footer>
+
+  <!-- ================= DOWNLOAD MODAL ================= -->
+  <div class="modal-overlay" id="downloadModal">
+    <div class="modal-card">
+      <div class="modal-ring">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v13m0 0l-5-5m5 5l5-5M5 21h14"/></svg>
+      </div>
+      <h3>Starting Your Download</h3>
+      <p>MI Trade Master is downloading now. If it doesn't start automatically, use the button below.</p>
+      <div class="modal-progress"><div class="fill" id="modalFill"></div></div>
+      <a href="#" id="modalDirectLink" class="btn-primary" style="width:100%; justify-content:center; margin-bottom:12px;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M12 3v13m0 0l-5-5m5 5l5-5M5 21h14"/></svg>
+        <span>Tap Here If Nothing Happened</span>
+      </a>
+      <button class="modal-close" onclick="closeModal()">Close</button>
+      <div class="modal-note">After downloading, open the file and tap "Install". If Play Protect shows a warning, tap "More details" → "Install anyway" — this app isn't on the Play Store yet.</div>
+    </div>
+  </div>
+
+<script>
+/* =========================================================================
+   CONFIG — reads live from Firestore (config/landingPage), written by the
+   admin panel's "Landing Page" section. Falls back to URL params, then
+   sane defaults, so the page still works even before the admin ever saves
+   anything there.
+   ========================================================================= */
+const firebaseConfig = {
+  apiKey: "AIzaSyCldWSASWc8cYKugKsbUR6AyEeUcpopeRE",
+  authDomain: "mitrademaster.firebaseapp.com",
+  projectId: "mitrademaster",
+  storageBucket: "mitrademaster.firebasestorage.app",
+  messagingSenderId: "206224301348",
+  appId: "1:206224301348:web:305c5c73e0cb5fa117e7b1",
+  measurementId: "G-LHSQXCH6BK"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+const DEFAULT_CONFIG = {
+  apkUrl: "",
+  logoUrl: "",
+  brandName: "MI Trade Master",
+  fileSizeLabel: "Free • APK direct download",
+  tagline: "Structured courses, an AI chart analyzer, risk-free practice mode, and a live support assistant — everything you need to actually understand trading.",
+  keywords: "trading app, forex education, candlestick patterns, urdu trading course, chart analyzer",
+  screenshots: [],
+};
+
+function readUrlOverrides() {
+  const params = new URLSearchParams(window.location.search);
+  const overrides = {};
+  if (params.get('apk')) overrides.apkUrl = params.get('apk');
+  if (params.get('logo')) overrides.logoUrl = params.get('logo');
+  if (params.get('brand')) overrides.brandName = params.get('brand');
+  if (params.get('size')) overrides.fileSizeLabel = params.get('size');
+  return overrides;
+}
+
+function applyConfig(config) {
+  const CONFIG = { ...DEFAULT_CONFIG, ...config, ...readUrlOverrides() };
+
+  // Branding
+  document.getElementById('navBrandName').innerHTML = CONFIG.brandName.replace(/(\s\S+)$/, '<span>$1</span>');
+  document.getElementById('footerBrand').textContent = CONFIG.brandName;
+  document.getElementById('fileSizeLabel').textContent = CONFIG.fileSizeLabel;
+  document.title = CONFIG.brandName + " — Download the App";
+  if (CONFIG.tagline) document.getElementById('heroLead').textContent = CONFIG.tagline;
+
+  // SEO / social meta tags
+  document.getElementById('metaDescription').setAttribute('content', CONFIG.tagline);
+  document.getElementById('metaKeywords').setAttribute('content', CONFIG.keywords);
+  document.getElementById('ogTitle').setAttribute('content', CONFIG.brandName + " — Download the App");
+  document.getElementById('ogDescription').setAttribute('content', CONFIG.tagline);
+  if (CONFIG.logoUrl) document.getElementById('ogImage').setAttribute('content', CONFIG.logoUrl);
+
+  // Logo
+  if (CONFIG.logoUrl) {
+    const img = document.getElementById('navLogo');
+    img.src = CONFIG.logoUrl;
+    img.style.display = 'block';
+    document.getElementById('navLogoFallback').style.display = 'none';
+  } else {
+    document.getElementById('navLogoFallback').textContent = CONFIG.brandName.charAt(0).toUpperCase();
+  }
+
+  document.getElementById('year').textContent = new Date().getFullYear();
+
+  // Download links
+  function setHref(el) { if (CONFIG.apkUrl) el.href = CONFIG.apkUrl; }
+  document.querySelectorAll('#mainDownloadBtn, #navCta').forEach(setHref);
+
+  // Screenshots — replace the placeholder mockups with real uploads, if any
+  if (Array.isArray(CONFIG.screenshots) && CONFIG.screenshots.length > 0) {
+    const strip = document.getElementById('phoneStrip');
+    strip.innerHTML = CONFIG.screenshots.map((url, i) => `
+      <div class="phone-mock"><div class="screen"><img class="real-shot" src="${url}" alt="${CONFIG.brandName} app screenshot ${i + 1} - trading education interface" loading="lazy" /></div></div>
+    `).join('');
+  }
+
+  window.MI_LANDING_CONFIG = CONFIG; // used by startDownload()
+}
+
+// Try Firestore first (live, admin-controlled); if it's unreachable for any
+// reason (offline, rules issue, brand-new project with no doc yet), fall
+// back to defaults + URL params so the page never shows broken/empty.
+db.collection('config').doc('landingPage').get()
+  .then(snap => applyConfig(snap.exists ? snap.data() : {}))
+  .catch(() => applyConfig({}));
+
+document.getElementById('year').textContent = new Date().getFullYear();
+
+// ---------- Download modal + real download trigger ----------
+function startDownload(e) {
+  e.preventDefault();
+  const apkUrl = (window.MI_LANDING_CONFIG && window.MI_LANDING_CONFIG.apkUrl) || '';
+  if (!apkUrl) {
+    alert('Download link is not configured yet. Please check back soon.');
+    return;
+  }
+  const modal = document.getElementById('downloadModal');
+  const fill = document.getElementById('modalFill');
+  const directLink = document.getElementById('modalDirectLink');
+  directLink.href = apkUrl;
+
+  modal.classList.add('show');
+  fill.style.width = '0%';
+  requestAnimationFrame(() => { fill.style.width = '70%'; });
+
+  const a = document.createElement('a');
+  a.href = apkUrl;
+  a.download = '';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+
+  setTimeout(() => { fill.style.width = '100%'; }, 900);
+}
+function closeModal() {
+  document.getElementById('downloadModal').classList.remove('show');
+}
+document.getElementById('downloadModal').addEventListener('click', (e) => {
+  if (e.target.id === 'downloadModal') closeModal();
+});
+
+// ---------- Floating candle particles ----------
+const field = document.getElementById('particleField');
+const PARTICLE_COUNT = 22;
+for (let i = 0; i < PARTICLE_COUNT; i++) {
+  const p = document.createElement('div');
+  const isUp = Math.random() > 0.45;
+  p.className = 'particle ' + (isUp ? 'up' : 'down');
+  const left = Math.random() * 100;
+  const duration = 14 + Math.random() * 12;
+  const delay = Math.random() * 16;
+  const scale = 0.6 + Math.random() * 0.9;
+  p.style.left = left + 'vw';
+  p.style.animationDuration = duration + 's';
+  p.style.animationDelay = delay + 's';
+  p.style.transform = `scale(${scale})`;
+  p.innerHTML = '<div class="wick"></div><div class="body"></div>';
+  field.appendChild(p);
+}
+</script>
+</body>
+</html>
