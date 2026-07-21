@@ -27,4 +27,35 @@
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
+  <url>
+    <loc>https://mitrademaster.vercel.app/</loc>
+    <image:image>
+      <image:loc>https://i.ibb.co/S49RkC2t/05ed3a6c260a.png</image:loc>
+      <image:title>MI TRADE MASTER App Icon</image:title>
+    </image:image>
+    <image:image>
+      <image:loc>https://i.ibb.co/bgGQsXz0/18f8e2036df4.jpg</image:loc>
+      <image:title>MI TRADE MASTER Screenshot 1</image:title>
+    </image:image>
+    <image:image>
+      <image:loc>https://i.ibb.co/nsJ4rts7/6cb4b876afec.jpg</image:loc>
+      <image:title>MI TRADE MASTER Screenshot 2</image:title>
+    </image:image>
+    <image:image>
+      <image:loc>https://i.ibb.co/0yrdrgyt/b751a4fe86b4.jpg</image:loc>
+      <image:title>MI TRADE MASTER Screenshot 3</image:title>
+    </image:image>
+    <image:image>
+      <image:loc>https://i.ibb.co/b5nskBxD/22dc10bbcd38.jpg</image:loc>
+      <image:title>MI TRADE MASTER Screenshot 4</image:title>
+    </image:image>
+    <image:image>
+      <image:loc>https://i.ibb.co/HpBFxcvM/dc65ea282752.jpg</image:loc>
+      <image:title>MI TRADE MASTER Screenshot 5</image:title>
+    </image:image>
+    <image:image>
+      <image:loc>https://i.ibb.co/r21Wyb6P/15b6c5adcf8a.jpg</image:loc>
+      <image:title>MI TRADE MASTER Screenshot 6</image:title>
+    </image:image>
+  </url>
 </urlset>
